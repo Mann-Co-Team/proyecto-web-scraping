@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -13,7 +13,7 @@ if (!email || !password || password.length < 6) {
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
-    const result = await db.query(
+    const result = await pool.query(
       'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email',
       [email, password_hash]
     );
@@ -32,8 +32,8 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
-    const user = result.rows;
+    const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    const user = rows;
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials.' });
