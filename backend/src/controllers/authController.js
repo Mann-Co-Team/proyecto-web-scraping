@@ -1,5 +1,5 @@
 const pool = require('../config/db');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 exports.signup = async (req, res) => {
@@ -30,20 +30,23 @@ if (!email || !password || password.length < 6) {
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
-
   try {
-    const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-    const user = rows;
-
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials.' });
+    // Compatible con mysql2 ([rows]) y con pg (result.rows)
+    let user = null;
+    const result = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    if (Array.isArray(result)) {
+      // mysql2 -> [rows, fields] ó rows directamente según wrapper
+      const rows = Array.isArray(result[0]) ? result[0] : result;
+      user = rows && rows.length ? rows[0] : null;
+    } else if (result && result.rows) {
+      // pg
+      user = result.rows.length ? result.rows[0] : null;
     }
 
-    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!user) return res.status(401).json({ message: 'Credenciales inválidas' });
 
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials.' });
-    }
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.status(401).json({ message: 'Credenciales inválidas' });
 
     const payload = {
       user: {
@@ -60,8 +63,8 @@ exports.login = async (req, res) => {
         res.json({ token });
       }
     );
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error during login.' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Error interno' });
   }
 };
