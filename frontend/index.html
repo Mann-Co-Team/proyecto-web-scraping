@@ -1,13 +1,291 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>client</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArriendosTalca - Portal de Arriendos</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-content">
+                    <div class="nav-brand">
+                        <h2 class="brand-title">ArriendosTalca</h2>
+                        <span class="brand-subtitle">Portal de Arriendos</span>
+                    </div>
+                    <div class="nav-menu" id="navMenu">
+                        <a href="#inicio" class="nav-link active">Inicio</a>
+                        <a href="#propiedades" class="nav-link">Propiedades</a>
+                        <div class="nav-auth" id="navAuth">
+                            <button class="btn btn--outline btn--sm" id="loginBtn">Iniciar Sesión</button>
+                            <button class="btn btn--primary btn--sm" id="registerBtn">Registrarse</button>
+                        </div>
+                        <div class="nav-user hidden" id="navUser">
+                            <div class="user-dropdown">
+                                <button class="user-dropdown-btn" id="userDropdownBtn">
+                                    <i class="fas fa-user"></i>
+                                    <span id="userName">Usuario</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                                <div class="user-dropdown-menu hidden" id="userDropdownMenu">
+                                    <a href="#dashboard" class="dropdown-item">Mi Dashboard</a>
+                                    <a href="#favoritos" class="dropdown-item">Favoritos</a>
+                                    <a href="#perfil" class="dropdown-item">Mi Perfil</a>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item logout-btn" id="logoutBtn">Cerrar Sesión</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Vista de Inicio -->
+        <div id="inicioView" class="view active">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="container">
+                    <div class="hero-content">
+                        <h1 class="hero-title">Encuentra tu hogar ideal en Talca</h1>
+                        <p class="hero-subtitle">Miles de propiedades disponibles para arriendo</p>
+                        
+                        <!-- Buscador Principal -->
+                        <div class="search-box">
+                            <div class="search-filters">
+                                <select class="form-control" id="tipoPropiedad">
+                                    <option value="">Tipo de Propiedad</option>
+                                </select>
+                                <select class="form-control" id="ubicacionFiltro">
+                                    <option value="">Ubicación</option>
+                                </select>
+                                <select class="form-control" id="precioFiltro">
+                                    <option value="">Rango de Precio</option>
+                                </select>
+                                <button class="btn btn--primary search-btn" id="buscarBtn">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Propiedades Destacadas -->
+            <section class="featured-properties">
+                <div class="container">
+                    <h2 class="section-title">Propiedades Destacadas</h2>
+                    <div class="properties-grid" id="propiedadesDestacadas">
+                        <!-- Propiedades se cargan via JavaScript -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Vista de Propiedades -->
+        <div id="propiedadesView" class="view">
+            <div class="container">
+                <div class="properties-layout">
+                    <aside class="filters-sidebar">
+                        <h3>Filtros</h3>
+                        <div class="filter-group">
+                            <label class="form-label">Tipo de Propiedad</label>
+                            <select class="form-control" id="filtroTipo">
+                                <option value="">Todos los tipos</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="form-label">Ubicación</label>
+                            <select class="form-control" id="filtroUbicacion">
+                                <option value="">Todas las ubicaciones</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="form-label">Precio Máximo</label>
+                            <input type="range" class="price-range" id="precioMax" min="0" max="1000000" step="50000">
+                            <span class="price-display" id="precioDisplay">$1.000.000</span>
+                        </div>
+                        <div class="filter-group">
+                            <label class="form-label">Dormitorios</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" value="1"> 1 dormitorio</label>
+                                <label><input type="checkbox" value="2"> 2 dormitorios</label>
+                                <label><input type="checkbox" value="3"> 3 dormitorios</label>
+                                <label><input type="checkbox" value="4"> 4+ dormitorios</label>
+                            </div>
+                        </div>
+                        <button class="btn btn--primary btn--full-width" id="aplicarFiltros">Aplicar Filtros</button>
+                    </aside>
+                    
+                    <div class="properties-content">
+                        <div class="properties-header">
+                            <h2>Todas las Propiedades</h2>
+                            <div class="view-controls">
+                                <button class="view-btn active" data-view="grid"><i class="fas fa-th"></i></button>
+                                <button class="view-btn" data-view="list"><i class="fas fa-list"></i></button>
+                            </div>
+                        </div>
+                        <div class="properties-grid" id="todasPropiedades">
+                            <!-- Propiedades se cargan via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vista de Dashboard -->
+        <div id="dashboardView" class="view">
+            <div class="container">
+                <h1>Mi Dashboard</h1>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h3>Mis Propiedades</h3>
+                        <p>Administra tus propiedades publicadas</p>
+                        <button class="btn btn--primary">Ver Propiedades</button>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Publicar Propiedad</h3>
+                        <p>Publica una nueva propiedad</p>
+                        <button class="btn btn--primary">Nueva Publicación</button>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Favoritos</h3>
+                        <p>Propiedades que te interesan</p>
+                        <button class="btn btn--primary" id="verFavoritosBtn">Ver Favoritos</button>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Mi Perfil</h3>
+                        <p>Actualiza tu información personal</p>
+                        <button class="btn btn--primary">Editar Perfil</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vista de Favoritos -->
+        <div id="favoritosView" class="view">
+            <div class="container">
+                <h1>Mis Favoritos</h1>
+                <div class="properties-grid" id="propiedadesFavoritas">
+                    <div class="empty-state">
+                        <i class="fas fa-heart"></i>
+                        <p>No tienes propiedades favoritas aún</p>
+                        <a href="#propiedades" class="btn btn--primary">Explorar Propiedades</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Login -->
+    <div class="modal hidden" id="loginModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Iniciar Sesión</h3>
+                <button class="modal-close" id="closeLoginModal">&times;</button>
+            </div>
+            <form class="modal-body" id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="loginPassword" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn--primary btn--full-width">Iniciar Sesión</button>
+                    <button type="button" class="btn btn--outline btn--full-width" id="goToRegister">¿No tienes cuenta? Regístrate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Registro -->
+    <div class="modal hidden" id="registerModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Registrarse</h3>
+                <button class="modal-close" id="closeRegisterModal">&times;</button>
+            </div>
+            <form class="modal-body" id="registerForm">
+                <div class="form-group">
+                    <label class="form-label">Nombre Completo</label>
+                    <input type="text" class="form-control" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Teléfono</label>
+                    <input type="tel" class="form-control" id="registerPhone" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="registerPassword" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn--primary btn--full-width">Registrarse</button>
+                    <button type="button" class="btn btn--outline btn--full-width" id="goToLogin">¿Ya tienes cuenta? Inicia Sesión</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Detalle de Propiedad -->
+    <div class="modal hidden" id="propertyDetailModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3 id="propertyDetailTitle">Detalle de Propiedad</h3>
+                <button class="modal-close" id="closePropertyModal">&times;</button>
+            </div>
+            <div class="modal-body" id="propertyDetailContent">
+                <!-- Contenido se carga via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>ArriendosTalca</h4>
+                    <p>Tu portal de confianza para encontrar el hogar perfecto en Talca.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Enlaces</h4>
+                    <ul>
+                        <li><a href="#inicio">Inicio</a></li>
+                        <li><a href="#propiedades">Propiedades</a></li>
+                        <li><a href="#">Sobre Nosotros</a></li>
+                        <li><a href="#">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <p><i class="fas fa-phone"></i> +56 71 234 5678</p>
+                    <p><i class="fas fa-envelope"></i> info@arriendostalca.cl</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Talca, Región del Maule</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 ArriendosTalca. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
 </html>

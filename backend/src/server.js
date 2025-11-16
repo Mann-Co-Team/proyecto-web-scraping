@@ -1,19 +1,40 @@
 require('dotenv').config();
-const app = require('./app');
+const express = require('express');
+const app = require('./app'); // si tu app exporta el express app desde app.js
 const { initPuppeteer } = require('./services/puppeteerService');
-// importa la cola para arrancarla (en el módulo la cola arranca con el require)
-require('./queues/scrapeQueue');
 
-(async () => {
+async function start() {
   try {
-    await initPuppeteer(); // asegura que el navegador se inicie al levantar el servidor
-    console.log('Puppeteer instance initialized.');
+    // iniciar dependencias críticas
+    await initPuppeteer();
 
-    app.listen(process.env.PORT || 5000, () => {
-      console.log(`Server is running on port ${process.env.PORT || 5000}`);
+    // arrancar la cola de scrapes después de que puppeteer esté listo
+    const scrapeQueue = require('./queues/scrapeQueue');
+    if (typeof scrapeQueue.startWorkers === 'function') {
+      scrapeQueue.startWorkers();
+    }
+
+    const port = process.env.PORT || 3000;
+    // si app es un objeto express (importado desde ./app), arranca el servidor
+    const server = app.listen(port, () => {
+      console.log(`Server running on port ${port}`);
     });
+
+    // manejar errores no capturados para debug durante desarrollo
+    process.on('unhandledRejection', (reason, p) => {
+      console.error('Unhandled Rejection at:', p, 'reason:', reason);
+    });
+    process.on('uncaughtException', (err) => {
+      console.error('Uncaught Exception:', err);
+      // en producción podrías reiniciar el proceso; aquí sólo logueamos
+    });
+
+    return server;
   } catch (err) {
     console.error('Fallo al iniciar dependencias:', err);
+    // dejar nodemon manejar restart tras el crash inicial
     process.exit(1);
   }
-})();
+}
+
+start();

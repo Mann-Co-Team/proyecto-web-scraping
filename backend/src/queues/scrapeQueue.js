@@ -3,15 +3,28 @@ const { scrapeUrl } = require('../services/puppeteerService');
 const pool = require('../config/db');
 const dns = require('dns').promises;
 const { URL } = require('url');
+const crypto = require('crypto');
+
 const ee = new EventEmitter();
 
 const concurrency = Number(process.env.SCRAPE_CONCURRENCY || 3);
 const queue = [];
 let active = 0;
 
+function generateJobId() {
+  try {
+    return crypto && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+  } catch {
+    return `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+  }
+}
+
 function enqueueScrape(payload) {
-  const jobId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+  const jobId = generateJobId();
   queue.push({ id: jobId, payload });
+  // trigger processing (workers must be started with startWorkers)
   setImmediate(processQueue);
   return jobId;
 }
@@ -27,10 +40,9 @@ async function isPublicUrl(targetUrl) {
   const host = parsed.hostname;
   if (host === 'localhost' || host === '127.0.0.1' || host === '::1') return false;
   try {
-    const { address } = await dns.lookup(host);
-    // simple checks for private ranges
+    const lookup = await dns.lookup(host);
+    const address = lookup && lookup.address ? lookup.address : '';
     if (/^(127\.|10\.|192\.168\.|169\.254\.)/.test(address)) return false;
-    // 172.16.0.0 - 172.31.255.255
     if (/^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(address)) return false;
     return true;
   } catch {
@@ -45,36 +57,37 @@ async function processQueue() {
   active++;
   const { id, payload } = job;
   try {
-    // optional: update DB job status -> 'processing'
     const { targetUrl, jobReference, userId } = payload;
-    // perform scrape
     const result = await scrapeUrl(targetUrl);
-    // persist result (ajusta columnas según tu schema)
     await pool.query(
       'INSERT INTO scraping_results (job_id, job_reference, data, created_at) VALUES (?, ?, ?, NOW())',
       [id, jobReference || null, JSON.stringify(result)]
     );
-    // optional: update DB job status -> 'finished'
     ee.emit('done', { id, payload, result });
   } catch (err) {
-    // log and persist failure record si lo deseas
-    await pool.query(
-      'INSERT INTO scraping_results (job_id, job_reference, data, created_at, error) VALUES (?, ?, ?, NOW(), ?)',
-      [id, payload.jobReference || null, null, err.message ? err.message : String(err)]
-    ).catch(()=>{});
+    try {
+      await pool.query(
+        'INSERT INTO scraping_results (job_id, job_reference, data, created_at, error) VALUES (?, ?, ?, NOW(), ?)',
+        [id, payload.jobReference || null, null, err && err.message ? err.message : String(err)]
+      );
+    } catch (_) { /* swallow DB persistence errors */ }
     ee.emit('failed', { id, payload, error: err });
   } finally {
     active--;
-    // procesa siguiente
     setImmediate(processQueue);
   }
 }
 
-// arrancar workers automáticamente al requerir el módulo
-for (let i = 0; i < concurrency; i++) setImmediate(processQueue);
+// Export a start function instead of auto-starting on require
+function startWorkers() {
+  for (let i = 0; i < concurrency; i++) {
+    setImmediate(processQueue);
+  }
+}
 
 module.exports = {
   enqueueScrape,
   events: ee,
   isPublicUrl,
+  startWorkers,
 };
