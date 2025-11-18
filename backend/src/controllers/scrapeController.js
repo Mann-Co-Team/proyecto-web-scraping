@@ -18,14 +18,14 @@ exports.scrapeUrl = async (req, res) => {
   let jobId; // Definir jobId aquí para que esté disponible en el catch
 
   try {
-    // Crear el trabajo de scraping en la base de datos
-    jobResult = await db.query(
+    // Crear el trabajo de scraping en la base de datos (MySQL)
+    const [insertJobResult] = await db.query(
       'INSERT INTO scraping_jobs (user_id, target_url, status) VALUES (?, ?, ?)',
       [userId, targetUrl, 'in_progress']
     );
 
-    // Obtener el ID del último insert
-    jobId = jobResult[0].insertId;
+    // Obtener id insertado
+    jobId = insertJobResult && insertJobResult.insertId ? insertJobResult.insertId : null;
 
     // Lógica de scraping
     const browser = getBrowser();
@@ -64,7 +64,7 @@ exports.scrapeUrl = async (req, res) => {
         return data; // Devolver el array de objetos
       });
 
-       // Insertar resultados del scraping
+         // Insertar resultados del scraping
       await db.query(
         'INSERT INTO scraping_results (job_id, data) VALUES (?, ?)',
         [jobId, JSON.stringify(scrapedData)]
@@ -84,7 +84,7 @@ exports.scrapeUrl = async (req, res) => {
       // Actualizar el estado del trabajo a 'failed' si algo falla
       if (jobId) {
         await db.query(
-          'UPDATE scraping_jobs SET status = $1 WHERE id = $2',
+          'UPDATE scraping_jobs SET status = ? WHERE id = ?',
           ['failed', jobId]
         );
       }
@@ -101,11 +101,11 @@ exports.scrapeUrl = async (req, res) => {
 exports.getJobs = async (req, res) => {
     const userId = req.user.id;
     try {
-        const result = await db.query(
-            'SELECT id, target_url, status, created_at FROM scraping_jobs WHERE user_id = ? ORDER BY created_at DESC',
-            [userId]
+        const [rows] = await db.query(
+          'SELECT id, target_url, status, created_at FROM scraping_jobs WHERE user_id = ? ORDER BY created_at DESC',
+          [userId]
         );
-        res.status(200).json(result[0]);
+        res.status(200).json(rows);
     } catch (error) {
         console.error('Error fetching jobs:', error);
         res.status(500).json({ message: 'Failed to fetch scraping jobs.' });

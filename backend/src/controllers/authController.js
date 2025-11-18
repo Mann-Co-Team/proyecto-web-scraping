@@ -13,14 +13,17 @@ if (!email || !password || password.length < 6) {
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
-    const result = await pool.query(
-      'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email',
+    // MySQL: use ? placeholders and read insertId from the result
+    const [insertResult] = await pool.query(
+      'INSERT INTO users (email, password_hash) VALUES (?, ?)',
       [email, password_hash]
     );
 
-    res.status(201).json({ user: result.rows });
+    const insertedId = insertResult && insertResult.insertId ? insertResult.insertId : null;
+    res.status(201).json({ user: { id: insertedId, email } });
   } catch (error) {
-    if (error.code === '23505') { // Unique violation
+    // Handle both Postgres and MySQL duplicate-key errors
+    if (error.code === '23505' || error.code === 'ER_DUP_ENTRY' || error.errno === 1062) {
       return res.status(409).json({ message: 'Email already in use.' });
     }
     console.error(error);
@@ -31,21 +34,14 @@ if (!email || !password || password.length < 6) {
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    // Compatible con mysql2 ([rows]) y con pg (result.rows)
-    let user = null;
-    const result = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-    if (Array.isArray(result)) {
-      // mysql2 -> [rows, fields] ó rows directamente según wrapper
-      const rows = Array.isArray(result[0]) ? result[0] : result;
-      user = rows && rows.length ? rows[0] : null;
-    } else if (result && result.rows) {
-      // pg
-      user = result.rows.length ? result.rows[0] : null;
-    }
+    // MySQL (mysql2) usage: pool.query returns [rows, fields]
+    const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    const user = rows && rows.length ? rows[0] : null;
 
     if (!user) return res.status(401).json({ message: 'Credenciales inválidas' });
 
-    const match = await bcrypt.compare(password, user.password);
+    // password is stored in `password_hash`
+    const match = await bcrypt.compare(password, user.password_hash);
     if (!match) return res.status(401).json({ message: 'Credenciales inválidas' });
 
     const payload = {
