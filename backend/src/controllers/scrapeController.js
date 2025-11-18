@@ -1,113 +1,77 @@
-const db = require('../config/db');
-const { getBrowser } = require('../services/puppeteerService');
+const puppeteer = require('puppeteer');
 
-exports.scrapeUrl = async (req, res) => {
-  const { targetUrl } = req.body;
-  const userId = req.user.id;
-
-  if (!targetUrl) {
-    return res.status(400).json({ message: 'Target URL is required.' });
+exports.scrape = async (req, res) => {
+  const targetUrl = req.query.url;
+  if (!targetUrl || typeof targetUrl !== 'string') {
+    return res.status(400).json({ error: 'Falta el parametro url' });
   }
 
-  // Validar que la URL sea de Yapo.cl (Mejora de seguridad)
-  // if (!targetUrl.startsWith('https://www.yapo.cl/')) {
-  //   return res.status(400).json({ message: 'Invalid target URL. Only yapo.cl is allowed.' });
-  // }
-
-  let jobResult;
-  let jobId; // Definir jobId aquí para que esté disponible en el catch
-
+  let browser;
+  let page;
   try {
-    // Crear el trabajo de scraping en la base de datos (MySQL)
-    const [insertJobResult] = await db.query(
-      'INSERT INTO scraping_jobs (user_id, target_url, status) VALUES (?, ?, ?)',
-      [userId, targetUrl, 'in_progress']
-    );
-
-    // Obtener id insertado
-    jobId = insertJobResult && insertJobResult.insertId ? insertJobResult.insertId : null;
-
-    // Lógica de scraping
-    const browser = getBrowser();
-    const page = await browser.newPage();
-    let scrapedData = {};
+    browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    page = await browser.newPage();
+    await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 60000 });
 
     try {
-      // Aumentamos el timeout y esperamos a que la red esté inactiva
-      await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 60000 });
+      await page.waitForSelector('#currentlistings', { timeout: 10000 });
+    } catch (err) {
+      console.warn('Elemento #currentlistings no aparecio, se continuara igualmente');
+    }
 
-      // ---- LÓGICA DE SCRAPING ADAPTADA PARA YAPO.CL ----
-      scrapedData = await page.evaluate(() => {
-        // 1. Selector principal para CADA anuncio.
-        //    (Debes encontrar el selector correcto usando "Inspeccionar")
-        //    Ej: 'article.ad-item', 'tr.ad'
-        const adSelector = 'article.listing-ad'; // <-- ¡CAMBIA ESTE SELECTOR!
-
-        const adElements = document.querySelectorAll(adSelector);
-
-        // 2. Mapear cada anuncio a un objeto
-        const data = Array.from(adElements).map(ad => {
-          // 3. Selectores INTERNOS para cada anuncio
-          //    (Debes encontrarlos inspeccionando DENTRO del adSelector)
-          const titleElement = ad.querySelector('h3.listing-ad__title'); // <-- ¡CAMBIA ESTO!
-          const priceElement = ad.querySelector('.listing-ad__price'); // <-- ¡CAMBIA ESTO!
-          const linkElement = ad.querySelector('a.listing-ad__link'); // <-- ¡CAMBIA ESTO!
-          
-          // 4. Extraer el texto y atributos
-          const title = titleElement ? titleElement.innerText.trim() : null;
-          const price = priceElement ? priceElement.innerText.trim() : null;
-          const link = linkElement ? linkElement.href : null; // Obtener el link
-
-          return { title, price, link };
-        });
-
-        return data; // Devolver el array de objetos
-      });
-
-         // Insertar resultados del scraping
-      await db.query(
-        'INSERT INTO scraping_results (job_id, data) VALUES (?, ?)',
-        [jobId, JSON.stringify(scrapedData)]
-      );
-
-      // Actualizar el estado del trabajo
-      await db.query(
-        'UPDATE scraping_jobs SET status = ? WHERE id = ?',
-        ['completed', jobId]
-      );
-
-      res.status(200).json({ message: 'Scraping successful!', data: scrapedData });
-
-    } catch (scrapeError) {
-      console.error('Scraping failed:', scrapeError);
-      
-      // Actualizar el estado del trabajo a 'failed' si algo falla
-      if (jobId) {
-        await db.query(
-          'UPDATE scraping_jobs SET status = ? WHERE id = ?',
-          ['failed', jobId]
-        );
+    const data = await page.evaluate(() => {
+      const parent = document.getElementById('currentlistings');
+      if (!parent) {
+        return { error: 'No se encontro #currentlistings', count: 0, ads: [] };
       }
-      res.status(500).json({ message: 'Failed to scrape the URL.' });
-    } finally {
-      await page.close();
-    }
-  } catch (dbError) {
-    console.error('Database error:', dbError);
-    res.status(500).json({ message: 'Server error while processing the scraping job.' });
-  }
-};
+      const grid = parent.querySelector('.d3-ads-grid.d3-ads-grid--category-list');
+      if (!grid) {
+        return { error: 'No se encontro .d3-ads-grid', count: 0, ads: [] };
+      }
 
-exports.getJobs = async (req, res) => {
-    const userId = req.user.id;
-    try {
-        const [rows] = await db.query(
-          'SELECT id, target_url, status, created_at FROM scraping_jobs WHERE user_id = ? ORDER BY created_at DESC',
-          [userId]
-        );
-        res.status(200).json(rows);
-    } catch (error) {
-        console.error('Error fetching jobs:', error);
-        res.status(500).json({ message: 'Failed to fetch scraping jobs.' });
+      const adElements = Array.from(grid.children);
+      const ads = adElements
+        .map((ad) => {
+          const titleEl = ad.querySelector('.d3-ad-tile__title');
+          const priceEl = ad.querySelector('.d3-ad-tile__price');
+          const sellerEl = ad.querySelector('.d3-ad-tile__seller > span');
+          const locationEl = ad.querySelector('.d3-ad-tile__location');
+          const descEl = ad.querySelector('.d3-ad-tile__short-description');
+          const linkEl = ad.querySelector('a.d3-ad-tile__description');
+          const imgEl = ad.querySelector('.d3-ad-tile__cover img');
+
+          return {
+            title: titleEl ? titleEl.innerText.trim() : '',
+            price: priceEl ? priceEl.innerText.trim() : '',
+            seller: sellerEl ? sellerEl.innerText.trim() : '',
+            location: locationEl ? locationEl.innerText.trim() : '',
+            description: descEl ? descEl.innerText.trim() : '',
+            image: imgEl ? imgEl.src : null,
+            link: linkEl ? linkEl.href : null
+          };
+        })
+        .filter((ad) => ad.title);
+
+      return {
+        error: null,
+        count: ads.length,
+        ads
+      };
+    });
+
+    return res.status(200).json({ status: 'success', url: targetUrl, data });
+  } catch (error) {
+    console.error('Error durante el scraping:', error);
+    return res.status(500).json({ error: 'Error interno del servidor al hacer scraping' });
+  } finally {
+    if (page) {
+      try { await page.close(); } catch (_) {}
     }
+    if (browser) {
+      try { await browser.close(); } catch (_) {}
+    }
+  }
 };
