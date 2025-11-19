@@ -99,6 +99,96 @@
         border-color: #0f766e;
       }
 
+      .tab-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 0 0 1.5rem;
+      }
+
+      .tab-controls button {
+        border-radius: 999px;
+        border: 1px solid #cbd5f5;
+        background: #f8fafc;
+        padding: 0.45rem 1.2rem;
+        font-weight: 600;
+        color: #475569;
+        cursor: pointer;
+      }
+
+      .tab-controls button.active {
+        background: #1d4ed8;
+        color: #fff;
+        border-color: #1d4ed8;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .profile-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 1.75rem;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+        max-width: 640px;
+      }
+
+      .profile-card h2 {
+        margin: 0 0 0.25rem;
+        font-size: 1.5rem;
+        color: #0f172a;
+      }
+
+      .profile-card p.description {
+        margin: 0 0 1rem;
+        color: #475569;
+      }
+
+      .profile-card form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .profile-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .password-fields {
+        display: none;
+        flex-direction: column;
+        gap: 0.85rem;
+        padding: 1rem;
+        border-radius: 12px;
+        border: 1px dashed #cbd5f5;
+        background: #f8fafc;
+      }
+
+      .password-fields.show {
+        display: flex;
+      }
+
+      .profile-empty {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 12px;
+        background: #fef3c7;
+        border: 1px solid #fcd34d;
+        color: #92400e;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
       .auth-indicator {
         font-size: 0.85rem;
         color: #475569;
@@ -438,6 +528,7 @@
             <a href="#" class="active">Inicio</a>
             <a href="#propiedades">Propiedades</a>
             <span id="auth-indicator" class="auth-indicator">Visitante</span>
+            <button type="button" data-action="profile-tab" style="display:none;">Mi perfil</button>
             <button type="button" data-action="login">Iniciar Sesión</button>
             <button type="button" class="primary" data-action="signup">Registrarse</button>
           </div>
@@ -484,10 +575,53 @@
       </header>
 
       <main>
-        <div id="status">Listo para consultar.</div>
-        <ul id="warnings"></ul>
-        <h2 class="section-heading" id="propiedades">Propiedades Destacadas</h2>
-        <section id="cards" class="grid"></section>
+        <div class="tab-controls">
+          <button type="button" class="tab-btn active" data-tab="properties">Propiedades</button>
+          <button type="button" class="tab-btn" data-tab="profile">Perfil</button>
+        </div>
+
+        <section id="properties-tab" class="tab-content active">
+          <div id="status">Listo para consultar.</div>
+          <ul id="warnings"></ul>
+          <h2 class="section-heading" id="propiedades">Propiedades Destacadas</h2>
+          <section id="cards" class="grid"></section>
+        </section>
+
+        <section id="profile-tab" class="tab-content">
+          <div class="profile-card">
+            <h2>Mi perfil</h2>
+            <p class="description">Completa tu nombre y revisa los datos con los que te registraste.</p>
+            <form id="profile-form" class="hidden">
+              <label>
+                Nombre completo
+                <input type="text" name="name" placeholder="Tu nombre" />
+              </label>
+              <label>
+                Correo electrónico
+                <input type="email" name="email" placeholder="tu@email.com" required />
+              </label>
+              <div class="profile-actions">
+                <button type="submit">Guardar perfil</button>
+                <button type="button" class="secondary" id="toggle-password-fields">Cambiar contraseña</button>
+              </div>
+              <div id="password-fields" class="password-fields">
+                <label>
+                  Nueva contraseña
+                  <input type="password" name="password" placeholder="********" minlength="6" />
+                </label>
+                <label>
+                  Confirmar contraseña
+                  <input type="password" name="confirmPassword" placeholder="********" minlength="6" />
+                </label>
+                <small style="color:#475569;">La contraseña debe tener al menos 6 caracteres.</small>
+              </div>
+              <p class="form-feedback" data-feedback="profile"></p>
+            </form>
+            <div id="profile-locked" class="profile-empty">
+              Debes iniciar sesión para administrar tu perfil.
+            </div>
+          </div>
+        </section>
       </main>
 
       <footer>
@@ -530,6 +664,10 @@
         </div>
         <form id="signup-form">
           <label>
+            Nombre (opcional)
+            <input type="text" name="name" placeholder="Tu nombre" />
+          </label>
+          <label>
             Correo electrónico
             <input type="email" name="email" placeholder="tu@email.com" required />
           </label>
@@ -550,13 +688,14 @@
       <div class="modal-content">
         <div>
           <h3>Recuperar contraseña</h3>
-          <p>Genera un token y úsalo para definir una nueva contraseña.</p>
+          <p>Te enviaremos un token a tu correo Gmail para confirmar el cambio.</p>
         </div>
         <form id="reset-request-form">
           <label>
             Correo asociado
             <input type="email" name="email" placeholder="tu@email.com" required />
           </label>
+          <small style="color:#475569;">Revisa la bandeja de entrada y spam de tu cuenta @gmail.</small>
           <p class="form-feedback" data-feedback="reset-request"></p>
           <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
             <button type="submit">Generar token</button>
@@ -591,6 +730,7 @@
       const AUTH_BASE = 'http://localhost:5000/api/auth';
       const TOKEN_KEY = 'at_auth_token';
       const EMAIL_KEY = 'at_auth_email';
+      const USER_KEY = 'at_auth_user';
       const form = document.getElementById('filters-form');
       const statusEl = document.getElementById('status');
       const cardsContainer = document.getElementById('cards');
@@ -601,12 +741,24 @@
       const passwordModal = document.getElementById('password-modal');
       const loginBtn = document.querySelector('[data-action="login"]');
       const signupBtn = document.querySelector('[data-action="signup"]');
+      const profileNavBtn = document.querySelector('[data-action="profile-tab"]');
       const forgotPasswordBtn = document.querySelector('[data-open-modal="password"]');
       const authIndicator = document.getElementById('auth-indicator');
       const loginForm = document.getElementById('login-form');
       const signupForm = document.getElementById('signup-form');
       const resetRequestForm = document.getElementById('reset-request-form');
       const resetConfirmForm = document.getElementById('reset-confirm-form');
+      const profileForm = document.getElementById('profile-form');
+      const profileLockedMessage = document.getElementById('profile-locked');
+      const passwordFields = document.getElementById('password-fields');
+      const togglePasswordBtn = document.getElementById('toggle-password-fields');
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      const tabPanels = {
+        properties: document.getElementById('properties-tab'),
+        profile: document.getElementById('profile-tab'),
+      };
+      const profilePanel = tabPanels.profile;
+      let activeTab = 'properties';
 
       const formDataToParams = (formData) => {
         const params = {};
@@ -753,25 +905,135 @@
         }
       };
 
+      const getStoredUser = () => {
+        const raw = localStorage.getItem(USER_KEY);
+        if (!raw) return null;
+        try {
+          return JSON.parse(raw);
+        } catch (error) {
+          console.warn('No se pudo leer el usuario almacenado', error);
+          return null;
+        }
+      };
+
+      const setStoredUser = (user) => {
+        if (!user) {
+          localStorage.removeItem(USER_KEY);
+          localStorage.removeItem(EMAIL_KEY);
+          return;
+        }
+        localStorage.setItem(USER_KEY, JSON.stringify(user));
+        if (user.email) {
+          localStorage.setItem(EMAIL_KEY, user.email);
+        }
+      };
+
+      const authHeaders = () => {
+        const token = localStorage.getItem(TOKEN_KEY);
+        return token ? { Authorization: `Bearer ${token}` } : {};
+      };
+
       const isAuthenticated = () => Boolean(localStorage.getItem(TOKEN_KEY));
 
+      const resetPasswordInputs = () => {
+        if (!profileForm) return;
+        if (profileForm.elements.password) profileForm.elements.password.value = '';
+        if (profileForm.elements.confirmPassword) profileForm.elements.confirmPassword.value = '';
+        if (passwordFields) passwordFields.classList.remove('show');
+        if (togglePasswordBtn) togglePasswordBtn.textContent = 'Cambiar contraseña';
+      };
+
+      const populateProfileForm = (user) => {
+        if (!profileForm || !user) return;
+        if (profileForm.elements.name) profileForm.elements.name.value = user.name || '';
+        if (profileForm.elements.email) profileForm.elements.email.value = user.email || '';
+        resetPasswordInputs();
+      };
+
+      const refreshProfileData = async (options = {}) => {
+        if (!isAuthenticated()) return null;
+        try {
+          const response = await fetch(`${AUTH_BASE}/me`, {
+            headers: {
+              'Content-Type': 'application/json',
+              ...authHeaders(),
+            },
+          });
+          if (!response.ok) {
+            if (response.status === 401) {
+              localStorage.removeItem(TOKEN_KEY);
+              setStoredUser(null);
+              updateAuthUI();
+            }
+            throw new Error('No se pudo obtener la información del perfil.');
+          }
+          const payload = await response.json();
+          if (payload.user) {
+            setStoredUser(payload.user);
+            populateProfileForm(payload.user);
+          }
+          if (!options.silent) {
+            setFeedback('profile', '', 'success');
+          }
+          updateAuthUI();
+          return payload.user;
+        } catch (error) {
+          if (!options.silent) {
+            setFeedback('profile', error.message, 'error');
+          }
+          return null;
+        }
+      };
+
+      const setActiveTab = (tab) => {
+        if (!tabPanels[tab]) return;
+        activeTab = tab;
+        tabButtons.forEach((btn) => {
+          btn.classList.toggle('active', btn.getAttribute('data-tab') === tab);
+        });
+        Object.entries(tabPanels).forEach(([key, panel]) => {
+          if (!panel) return;
+          panel.classList.toggle('active', key === tab);
+        });
+        if (tab === 'profile' && isAuthenticated()) {
+          refreshProfileData({ silent: true });
+          setFeedback('profile', '', 'success');
+        }
+      };
       const updateAuthUI = () => {
+        const storedUser = getStoredUser();
         if (isAuthenticated()) {
-          const email = localStorage.getItem(EMAIL_KEY) || 'Usuario autenticado';
-          authIndicator.textContent = email;
+          const displayName = storedUser?.name?.trim();
+          const email = storedUser?.email || localStorage.getItem(EMAIL_KEY) || 'Usuario autenticado';
+          authIndicator.textContent = displayName ? `${displayName} (${email})` : email;
           loginBtn.textContent = 'Cerrar sesión';
           signupBtn.style.display = 'none';
+          if (profileNavBtn) profileNavBtn.style.display = '';
+          if (profileForm) profileForm.classList.remove('hidden');
+          if (profileLockedMessage) profileLockedMessage.classList.add('hidden');
+          if (storedUser) populateProfileForm(storedUser);
         } else {
           authIndicator.textContent = 'Visitante';
           loginBtn.textContent = 'Iniciar Sesión';
           signupBtn.style.display = '';
+          if (profileNavBtn) profileNavBtn.style.display = 'none';
+          if (profileForm) {
+            profileForm.reset();
+            profileForm.classList.add('hidden');
+          }
+          resetPasswordInputs();
+          if (profileLockedMessage) profileLockedMessage.classList.remove('hidden');
+          if (activeTab === 'profile') {
+            setActiveTab('properties');
+          }
+          setFeedback('profile', '', 'success');
         }
       };
 
       loginBtn.addEventListener('click', () => {
         if (isAuthenticated()) {
           localStorage.removeItem(TOKEN_KEY);
-          localStorage.removeItem(EMAIL_KEY);
+          setStoredUser(null);
           updateAuthUI();
           statusEl.textContent = 'Sesión cerrada correctamente.';
           statusEl.style.color = '#475569';
@@ -781,6 +1043,32 @@
       });
 
       signupBtn.addEventListener('click', () => toggleModal(signupModal, true));
+      if (profileNavBtn) {
+        profileNavBtn.addEventListener('click', () => {
+          if (!isAuthenticated()) {
+            statusEl.textContent = 'Inicia sesión para administrar tu perfil.';
+            statusEl.style.color = '#f87171';
+            setActiveTab('properties');
+            return;
+          }
+          setActiveTab('profile');
+          if (profilePanel) {
+            profilePanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      }
+
+      tabButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const targetTab = btn.getAttribute('data-tab');
+          if (targetTab === 'profile' && !isAuthenticated()) {
+            statusEl.textContent = 'Inicia sesión para administrar tu perfil.';
+            statusEl.style.color = '#f87171';
+            return;
+          }
+          setActiveTab(targetTab);
+        });
+      });
       overlay.addEventListener('click', () => {
         toggleModal(loginModal, false);
         toggleModal(signupModal, false);
@@ -814,7 +1102,11 @@
             throw new Error(payload.message || 'No se pudo iniciar sesión');
           }
           localStorage.setItem(TOKEN_KEY, payload.token);
-          localStorage.setItem(EMAIL_KEY, data.email);
+          if (payload.user) {
+            setStoredUser(payload.user);
+          } else {
+            setStoredUser({ email: data.email });
+          }
           setFeedback('login', 'Inicio de sesión exitoso.', 'success');
           toggleModal(loginModal, false);
           updateAuthUI();
@@ -861,8 +1153,11 @@
             if (!response.ok) {
               throw new Error(payload.message || 'No se pudo generar el token');
             }
-            const tokenNote = payload.token ? ` Token: ${payload.token}` : '';
-            setFeedback('reset-request', `${payload.message || 'Solicitud enviada.'}${tokenNote}`, 'success');
+            let message = payload.message || 'Solicitud enviada. Revisa tu correo.';
+            if (payload.token) {
+              message += ` Token temporal: ${payload.token}`;
+            }
+            setFeedback('reset-request', message, 'success');
             resetRequestForm.reset();
           } catch (error) {
             setFeedback('reset-request', error.message, 'error');
@@ -898,7 +1193,86 @@
         });
       }
 
+      if (togglePasswordBtn && passwordFields) {
+        togglePasswordBtn.addEventListener('click', () => {
+          if (!isAuthenticated()) {
+            statusEl.textContent = 'Inicia sesión para definir una nueva contraseña.';
+            statusEl.style.color = '#f87171';
+            return;
+          }
+          const showing = passwordFields.classList.toggle('show');
+          togglePasswordBtn.textContent = showing ? 'Ocultar cambio de contraseña' : 'Cambiar contraseña';
+          if (!showing) {
+            if (profileForm?.elements.password) profileForm.elements.password.value = '';
+            if (profileForm?.elements.confirmPassword) profileForm.elements.confirmPassword.value = '';
+          }
+        });
+      }
+
+      if (profileForm) {
+        profileForm.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          if (!isAuthenticated()) {
+            setFeedback('profile', 'Debes iniciar sesión para actualizar tu perfil.', 'error');
+            return;
+          }
+          const formEntries = Object.fromEntries(new FormData(profileForm).entries());
+          const currentUser = getStoredUser();
+          const updates = {};
+          const trimmedName = (formEntries.name || '').trim();
+          if (currentUser?.name !== trimmedName) {
+            updates.name = trimmedName || null;
+          }
+          if (formEntries.email && formEntries.email !== currentUser?.email) {
+            updates.email = formEntries.email;
+          }
+          if (formEntries.password || formEntries.confirmPassword) {
+            if (formEntries.password !== formEntries.confirmPassword) {
+              setFeedback('profile', 'Las contraseñas no coinciden.', 'error');
+              return;
+            }
+            updates.password = formEntries.password;
+          }
+          if (!Object.keys(updates).length) {
+            setFeedback('profile', 'No detectamos cambios para guardar.', 'error');
+            return;
+          }
+          setFeedback('profile', 'Guardando cambios...', 'success');
+          try {
+            const response = await fetch(`${AUTH_BASE}/me`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                ...authHeaders(),
+              },
+              body: JSON.stringify(updates),
+            });
+            const payload = await response.json();
+            if (!response.ok) {
+              if (response.status === 401) {
+                localStorage.removeItem(TOKEN_KEY);
+                setStoredUser(null);
+                updateAuthUI();
+              }
+              throw new Error(payload.message || 'No se pudo actualizar el perfil.');
+            }
+            if (payload.user) {
+              setStoredUser(payload.user);
+              populateProfileForm(payload.user);
+            }
+            setFeedback('profile', payload.message || 'Perfil actualizado correctamente.', 'success');
+            resetPasswordInputs();
+            updateAuthUI();
+          } catch (error) {
+            setFeedback('profile', error.message, 'error');
+          }
+        });
+      }
+
       updateAuthUI();
+      if (isAuthenticated()) {
+        refreshProfileData({ silent: true });
+      }
 
       // Carga inicial
       fetchListings({ region: 'maule', category: 'inmuebles', limit: 24, page: 1 });
