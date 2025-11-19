@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { useNotifications } from './NotificationContext.jsx';
 
 // Crear el contexto de autenticación
 const AuthContext = createContext();
@@ -9,6 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { notify } = useNotifications();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -48,14 +50,16 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user || null));
+      notify('Sesión iniciada correctamente.', { type: 'success' });
       return data;
     } catch (err) {
       setError(err.message);
+      notify(err.message || 'No se pudo iniciar sesión', { type: 'error' });
       throw err;
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [notify]);
 
   // Función para logout
   const logout = useCallback(() => {
@@ -64,7 +68,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setError(null);
-  }, []);
+    notify('Sesión cerrada.', { type: 'info' });
+  }, [notify]);
 
   // Función para registrarse
   const register = useCallback(async (email, password, name) => {
@@ -88,14 +93,16 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user || null));
+      notify('Registro exitoso. Sesión iniciada.', { type: 'success' });
       return data;
     } catch (err) {
       setError(err.message);
+      notify(err.message || 'No se pudo registrar', { type: 'error' });
       throw err;
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [notify]);
 
   const value = {
     user,

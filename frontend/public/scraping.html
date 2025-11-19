@@ -704,6 +704,61 @@
         cursor: pointer;
       }
 
+      .toast-stack {
+        position: fixed;
+        top: 1.5rem;
+        right: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-end;
+        z-index: 2000;
+        pointer-events: none;
+      }
+
+      .toast {
+        min-width: 240px;
+        background: #fff;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        padding: 0.85rem 1rem;
+        color: #0f172a;
+        font-weight: 600;
+        box-shadow: 0 16px 35px rgba(15, 23, 42, 0.18);
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+      }
+
+      .toast--visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .toast--success {
+        border-color: #86efac;
+        background: #ecfdf5;
+        color: #065f46;
+      }
+
+      .toast--info {
+        border-color: #bae6fd;
+        background: #e0f2fe;
+        color: #0f172a;
+      }
+
+      .toast--warning {
+        border-color: #fcd34d;
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .toast--error {
+        border-color: #fca5a5;
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+
       @media (max-width: 900px) {
         .properties-container {
           flex-direction: column;
@@ -718,6 +773,7 @@
   </head>
   <body>
     <div class="page">
+      <div id="toast-stack" class="toast-stack" role="status" aria-live="polite"></div>
       <nav>
         <div class="nav-content">
           <div class="brand">
@@ -1009,6 +1065,26 @@
       };
       const profilePanel = tabPanels.profile;
       let activeTab = 'properties';
+      const toastStack = document.getElementById('toast-stack');
+      const TOAST_DURATION = 4000;
+
+      const showToast = (message, variant = 'info', duration = TOAST_DURATION) => {
+        if (!toastStack) return;
+        const toast = document.createElement('div');
+        toast.className = `toast toast--${variant}`;
+        toast.textContent = message;
+        toastStack.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('toast--visible'));
+        setTimeout(() => {
+          toast.classList.remove('toast--visible');
+          toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+        }, duration);
+        setTimeout(() => {
+          if (toast.parentElement) {
+            toast.remove();
+          }
+        }, duration + 600);
+      };
 
       const getCombinedFilters = () => {
         const heroData = new FormData(heroForm);
@@ -1410,8 +1486,7 @@
           localStorage.removeItem(TOKEN_KEY);
           setStoredUser(null);
           updateAuthUI();
-          statusEl.textContent = 'Sesión cerrada correctamente.';
-          statusEl.style.color = '#475569';
+          showToast('Sesión cerrada correctamente.', 'info');
           return;
         }
         toggleModal(loginModal, true);
@@ -1421,8 +1496,7 @@
       if (profileNavBtn) {
         profileNavBtn.addEventListener('click', () => {
           if (!isAuthenticated()) {
-            statusEl.textContent = 'Inicia sesión para administrar tu perfil.';
-            statusEl.style.color = '#f87171';
+            showToast('Inicia sesión para administrar tu perfil.', 'warning');
             setActiveTab('properties');
             return;
           }
@@ -1437,8 +1511,7 @@
         btn.addEventListener('click', () => {
           const targetTab = btn.getAttribute('data-tab');
           if (targetTab === 'profile' && !isAuthenticated()) {
-            statusEl.textContent = 'Inicia sesión para administrar tu perfil.';
-            statusEl.style.color = '#f87171';
+            showToast('Inicia sesión para administrar tu perfil.', 'warning');
             return;
           }
           setActiveTab(targetTab);
@@ -1485,8 +1558,7 @@
           setFeedback('login', 'Inicio de sesión exitoso.', 'success');
           toggleModal(loginModal, false);
           updateAuthUI();
-          statusEl.textContent = 'Sesión iniciada. Puedes acceder a rutas protegidas.';
-          statusEl.style.color = '#22c55e';
+          showToast('Sesión iniciada. Puedes acceder a rutas protegidas.', 'success');
         } catch (error) {
           setFeedback('login', error.message, 'error');
         }
@@ -1571,8 +1643,7 @@
       if (togglePasswordBtn && passwordFields) {
         togglePasswordBtn.addEventListener('click', () => {
           if (!isAuthenticated()) {
-            statusEl.textContent = 'Inicia sesión para definir una nueva contraseña.';
-            statusEl.style.color = '#f87171';
+            showToast('Inicia sesión para definir una nueva contraseña.', 'warning');
             return;
           }
           const showing = passwordFields.classList.toggle('show');

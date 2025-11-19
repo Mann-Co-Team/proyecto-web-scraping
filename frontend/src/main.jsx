@@ -9,14 +9,17 @@ import './index.css';
 import { BrowserRouter } from 'react-router-dom';
 // También importa el AuthProvider que discutimos para el login
 import { AuthProvider } from './context/AuthContext.jsx'; // (Debes crear este archivo)
+import { NotificationProvider } from './context/NotificationContext.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     {/* 2. Envuelve tu App con BrowserRouter y tu AuthProvider */}
     <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <NotificationProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </NotificationProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
