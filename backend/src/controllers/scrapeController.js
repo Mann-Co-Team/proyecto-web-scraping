@@ -1,35 +1,71 @@
-const puppeteer = require('puppeteer');
+const { URL } = require('url');
+const pool = require('../config/db');
+const { enqueueScrape, isPublicUrl } = require('../queues/scrapeQueue');
+const { initPuppeteer } = require('../services/puppeteerService');
 
-exports.scrape = async (req, res) => {
-  const targetUrl = req.query.url;
-  if (!targetUrl || typeof targetUrl !== 'string') {
-    return res.status(400).json({ error: 'Falta el parametro url' });
-  }
+const DEFAULT_REGION = 'maule';
+const DEFAULT_CATEGORY = 'inmuebles';
+const DEFAULT_URL = 'https://www.yapo.cl/maule/inmuebles?ca=15_s&o=1&w=1&ret=2&cmn=1&cm=1';
+const ALLOWED_HOSTS = ['yapo.cl', 'www.yapo.cl'];
 
-  let browser;
-  let page;
+const normalizeNumberParam = (value, fallback) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+};
+
+const buildYapoUrl = ({
+  region = DEFAULT_REGION,
+  category = DEFAULT_CATEGORY,
+  search = '',
+  page = 1,
+}) => {
   try {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    page = await browser.newPage();
-    await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 60000 });
-
-    try {
-      await page.waitForSelector('#currentlistings', { timeout: 10000 });
-    } catch (err) {
-      console.warn('Elemento #currentlistings no aparecio, se continuara igualmente');
+    const url = new URL(`https://www.yapo.cl/${region}/${category}`);
+    url.searchParams.set('o', page);
+    url.searchParams.set('ca', '15_s');
+    url.searchParams.set('w', '1');
+    url.searchParams.set('ret', '2');
+    if (search) {
+      url.searchParams.set('q', search);
     }
+    return url.toString();
+  } catch (_) {
+    return DEFAULT_URL;
+  }
+};
 
-    const data = await page.evaluate(() => {
+const assertYapoUrl = (targetUrl) => {
+  const parsed = new URL(targetUrl);
+  if (!ALLOWED_HOSTS.some((host) => parsed.hostname === host || parsed.hostname.endsWith(`.${host}`))) {
+    throw new Error('Solo se permiten URLs de yapo.cl');
+  }
+  return parsed.toString();
+};
+
+const scrapeYapoPage = async (targetUrl) => {
+  const browser = await initPuppeteer();
+  const page = await browser.newPage();
+  try {
+    await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 60_000 });
+    await page.waitForTimeout(1500);
+
+    const payload = await page.evaluate(() => {
+      const result = {
+        count: 0,
+        ads: [],
+        error: null,
+      };
+
       const parent = document.getElementById('currentlistings');
       if (!parent) {
-        return { error: 'No se encontro #currentlistings', count: 0, ads: [] };
+        result.error = 'No se encontró el contenedor principal (#currentlistings).';
+        return result;
       }
+
       const grid = parent.querySelector('.d3-ads-grid.d3-ads-grid--category-list');
       if (!grid) {
-        return { error: 'No se encontro .d3-ads-grid', count: 0, ads: [] };
+        result.error = 'No se encontró el listado de avisos de Yapo.';
+        return result;
       }
 
       const adElements = Array.from(grid.children);
@@ -37,41 +73,127 @@ exports.scrape = async (req, res) => {
         .map((ad) => {
           const titleEl = ad.querySelector('.d3-ad-tile__title');
           const priceEl = ad.querySelector('.d3-ad-tile__price');
-          const sellerEl = ad.querySelector('.d3-ad-tile__seller > span');
+          const sellerEl = ad.querySelector('.d3-ad-tile__seller span');
           const locationEl = ad.querySelector('.d3-ad-tile__location');
           const descEl = ad.querySelector('.d3-ad-tile__short-description');
           const linkEl = ad.querySelector('a.d3-ad-tile__description');
           const imgEl = ad.querySelector('.d3-ad-tile__cover img');
 
+          const cleanText = (node) => (node ? node.textContent.trim() : '');
+
           return {
-            title: titleEl ? titleEl.innerText.trim() : '',
-            price: priceEl ? priceEl.innerText.trim() : '',
-            seller: sellerEl ? sellerEl.innerText.trim() : '',
-            location: locationEl ? locationEl.innerText.trim() : '',
-            description: descEl ? descEl.innerText.trim() : '',
+            title: cleanText(titleEl),
+            price: cleanText(priceEl),
+            seller: cleanText(sellerEl),
+            location: cleanText(locationEl),
+            description: cleanText(descEl),
             image: imgEl ? imgEl.src : null,
-            link: linkEl ? linkEl.href : null
+            link: linkEl ? linkEl.href : null,
           };
         })
         .filter((ad) => ad.title);
 
-      return {
-        error: null,
-        count: ads.length,
-        ads
-      };
+      result.count = ads.length;
+      result.ads = ads;
+      return result;
     });
 
-    return res.status(200).json({ status: 'success', url: targetUrl, data });
-  } catch (error) {
-    console.error('Error durante el scraping:', error);
-    return res.status(500).json({ error: 'Error interno del servidor al hacer scraping' });
+    return payload;
   } finally {
-    if (page) {
-      try { await page.close(); } catch (_) {}
+    if (!page.isClosed()) {
+      await page.close();
     }
-    if (browser) {
-      try { await browser.close(); } catch (_) {}
+  }
+};
+
+exports.scrapeUrl = async (req, res) => {
+  const { url, jobReference } = req.body || {};
+  if (!url) {
+    return res.status(400).json({ message: 'Debes enviar la URL a procesar.' });
+  }
+
+  try {
+    const allowed = await isPublicUrl(url);
+    if (!allowed) {
+      return res.status(400).json({ message: 'Solo se permiten URLs públicas.' });
     }
+
+    const jobId = enqueueScrape({
+      targetUrl: url,
+      jobReference: jobReference || null,
+      userId: req.user?.id || null,
+    });
+
+    return res.status(202).json({ jobId });
+  } catch (error) {
+    console.error('Error creando job de scraping:', error);
+    return res.status(500).json({ message: 'No se pudo encolar el scrape.' });
+  }
+};
+
+exports.getJobs = async (_req, res) => {
+  try {
+    const [rows] = await pool.query(
+      'SELECT job_id AS id, job_reference, data, error, created_at FROM scraping_results ORDER BY created_at DESC LIMIT 20'
+    );
+
+    const jobs = rows.map((row) => ({
+      id: row.id,
+      jobReference: row.job_reference,
+      createdAt: row.created_at,
+      error: row.error,
+      data: (() => {
+        if (!row.data) return null;
+        try {
+          return JSON.parse(row.data);
+        } catch (_) {
+          return row.data;
+        }
+      })(),
+    }));
+
+    return res.json({ jobs });
+  } catch (error) {
+    console.error('Error obteniendo historial de scrapes:', error);
+    return res.status(500).json({ message: 'No se pudo obtener el historial de scrapes.' });
+  }
+};
+
+exports.getYapoListings = async (req, res) => {
+  const limit = Math.min(normalizeNumberParam(req.query.limit, 24), 60);
+  const page = normalizeNumberParam(req.query.page, 1);
+  const search = (req.query.search || '').trim();
+  const region = (req.query.region || DEFAULT_REGION).toLowerCase();
+  const category = (req.query.category || DEFAULT_CATEGORY).toLowerCase();
+
+  let targetUrl = req.query.url;
+  if (targetUrl) {
+    try {
+      targetUrl = assertYapoUrl(targetUrl);
+    } catch (error) {
+      return res.status(400).json({ message: error.message || 'URL inválida.' });
+    }
+  } else {
+    targetUrl = buildYapoUrl({ region, category, search, page });
+  }
+
+  try {
+    const result = await scrapeYapoPage(targetUrl);
+    return res.json({
+      meta: {
+        total: result.count,
+        limit,
+        page,
+        targetUrl,
+        region,
+        category,
+        search,
+      },
+      listings: result.ads.slice(0, limit),
+      warnings: result.error ? [result.error] : [],
+    });
+  } catch (error) {
+    console.error('Error durante scraping de Yapo:', error);
+    return res.status(500).json({ message: 'No se pudo obtener información de Yapo.cl' });
   }
 };

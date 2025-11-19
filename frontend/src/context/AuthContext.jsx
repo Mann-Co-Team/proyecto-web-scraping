@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 // Crear el contexto de autenticación
 const AuthContext = createContext();
@@ -9,6 +9,22 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+    if (token) {
+      setIsAuthenticated(true);
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (_) {
+          setUser(null);
+        }
+      }
+    }
+    setIsLoading(false);
+  }, []);
 
   // Función para login
   const login = useCallback(async (email, password) => {
@@ -31,6 +47,7 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
       setIsAuthenticated(true);
       localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user || null));
       return data;
     } catch (err) {
       setError(err.message);
@@ -45,6 +62,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setIsAuthenticated(false);
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setError(null);
   }, []);
 
@@ -69,6 +87,7 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
       setIsAuthenticated(true);
       localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user || null));
       return data;
     } catch (err) {
       setError(err.message);

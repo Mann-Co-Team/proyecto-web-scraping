@@ -54,7 +54,7 @@ export default function LoginPage() {
           />
         </div>
 
-        <button type="submit" disabled={isLoading}>
+        <button type="submit" className="btn btn--primary" disabled={isLoading}>
           {isLoading ? 'Cargando...' : 'Iniciar Sesión'}
         </button>
       </form>
