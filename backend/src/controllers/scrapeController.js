@@ -1,4 +1,5 @@
 const { URL } = require('url');
+const crypto = require('crypto');
 const pool = require('../config/db');
 const { enqueueScrape, isPublicUrl } = require('../queues/scrapeQueue');
 const { initPuppeteer } = require('../services/puppeteerService');
@@ -42,12 +43,56 @@ const assertYapoUrl = (targetUrl) => {
   return parsed.toString();
 };
 
+const generateResultId = () => {
+  try {
+    return typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  } catch (_) {
+    return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+};
+
+const persistScrapeResult = async ({ data, jobReference = null, error = null }) => {
+  const serialized = JSON.stringify(data ?? {});
+  const jobId = generateResultId();
+  try {
+    if (error) {
+      await pool.query(
+        'INSERT INTO scraping_results (job_id, job_reference, data, created_at, error) VALUES (?, ?, ?, NOW(), ?)',
+        [jobId, jobReference, serialized, error]
+      );
+    } else {
+      await pool.query(
+        'INSERT INTO scraping_results (job_id, job_reference, data, created_at) VALUES (?, ?, ?, NOW())',
+        [jobId, jobReference, serialized]
+      );
+    }
+  } catch (dbErr) {
+    console.error('Error guardando resultado de scraping:', dbErr);
+  }
+};
+
 const scrapeYapoPage = async (targetUrl) => {
   const browser = await initPuppeteer();
   const page = await browser.newPage();
   try {
-    await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 60_000 });
-    await page.waitForTimeout(1500);
+    await page.setUserAgent(
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'
+    );
+    await page.setViewport({ width: 1366, height: 768 });
+    page.setDefaultNavigationTimeout(90_000);
+
+    await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 90_000 });
+
+    try {
+      await page.waitForSelector('#currentlistings', { timeout: 20_000 });
+    } catch (_) {
+      // continúa aunque el selector tarde más en aparecer; el evaluate manejará el mensaje.
+    }
+
+    // margen para que carguen tarjetas e imágenes
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const payload = await page.evaluate(() => {
       const result = {
@@ -163,8 +208,18 @@ exports.getYapoListings = async (req, res) => {
   const limit = Math.min(normalizeNumberParam(req.query.limit, 24), 60);
   const page = normalizeNumberParam(req.query.page, 1);
   const search = (req.query.search || '').trim();
-  const region = (req.query.region || DEFAULT_REGION).toLowerCase();
-  const category = (req.query.category || DEFAULT_CATEGORY).toLowerCase();
+  const region = DEFAULT_REGION;
+  const category = DEFAULT_CATEGORY;
+  const forcedWarnings = [];
+  const jobReference = req.query.jobReference || 'direct:yapo-listings';
+
+  if (req.query.region && req.query.region.toLowerCase() !== DEFAULT_REGION) {
+    forcedWarnings.push('Solo se muestran inmuebles ubicados en la Región del Maule.');
+  }
+
+  if (req.query.category && req.query.category.toLowerCase() !== DEFAULT_CATEGORY) {
+    forcedWarnings.push('Solo se muestra la categoría de inmuebles en esta vista.');
+  }
 
   let targetUrl = req.query.url;
   if (targetUrl) {
@@ -179,7 +234,8 @@ exports.getYapoListings = async (req, res) => {
 
   try {
     const result = await scrapeYapoPage(targetUrl);
-    return res.json({
+    const gatheredWarnings = result.error ? [result.error] : [];
+    const responsePayload = {
       meta: {
         total: result.count,
         limit,
@@ -190,10 +246,23 @@ exports.getYapoListings = async (req, res) => {
         search,
       },
       listings: result.ads.slice(0, limit),
-      warnings: result.error ? [result.error] : [],
-    });
+      warnings: [...forcedWarnings, ...gatheredWarnings],
+    };
+
+    // persist result for history/auditing
+    await persistScrapeResult({ data: responsePayload, jobReference });
+
+    return res.json(responsePayload);
   } catch (error) {
     console.error('Error durante scraping de Yapo:', error);
+    await persistScrapeResult({
+      data: {
+        meta: { targetUrl, region, category, search, page, limit },
+        listings: [],
+      },
+      jobReference,
+      error: error.message || 'Error desconocido durante el scraping',
+    });
     return res.status(500).json({ message: 'No se pudo obtener información de Yapo.cl' });
   }
 };
