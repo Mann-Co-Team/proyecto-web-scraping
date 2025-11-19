@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Arriendos Talca - Resultados de Scraping</title>
+    <title>HabiTalca - Resultados de Scraping</title>
     <style>
       :root {
         font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -19,7 +19,7 @@
         margin: 0;
         padding: 0;
         min-height: 100vh;
-        background: #f8fafc;
+        background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 45%, #fdf2f8 100%);
         color: #0f172a;
       }
 
@@ -31,11 +31,12 @@
 
       nav {
         width: 100%;
-        background: #fff;
-        border-bottom: 1px solid #e2e8f0;
+        background: rgba(255, 255, 255, 0.85);
+        border-bottom: 1px solid rgba(226, 232, 240, 0.7);
         position: sticky;
         top: 0;
         z-index: 10;
+        backdrop-filter: blur(10px);
       }
 
       .nav-content {
@@ -198,8 +199,8 @@
       }
 
       .hero {
-        background: linear-gradient(180deg, #f1f5f9 0%, #fff 55%);
-        padding: 3rem 1.5rem 2rem;
+        background: linear-gradient(135deg, #f5f7ff 0%, #ffffff 45%, #f0f9ff 100%);
+        padding: clamp(2rem, 4vw, 3.5rem) 1.5rem 2rem;
       }
 
       .hero-content {
@@ -226,14 +227,14 @@
       .filters-card {
         margin: 1.5rem auto 0;
         background: #fff;
-        border-radius: 20px;
-        padding: 1.75rem;
-        box-shadow: 0 30px 70px rgba(15, 23, 42, 0.08);
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
         display: grid;
-        gap: 1rem;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        align-items: end;
-        max-width: 900px;
+        gap: 1.2rem;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        align-items: start;
+        max-width: 980px;
       }
 
       .pill-group {
@@ -284,7 +285,7 @@
 
       .filters-card button {
         border: none;
-        border-radius: 12px;
+        border-radius: 14px;
         padding: 0.95rem 1.25rem;
         font-size: 1rem;
         font-weight: 600;
@@ -292,14 +293,21 @@
         color: #fff;
         cursor: pointer;
         box-shadow: 0 12px 30px rgba(15, 118, 110, 0.25);
+        grid-column: 1 / -1;
+        width: 100%;
+      }
+
+      .inline-input-pair {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 0.75rem;
       }
 
       main {
-        max-width: 1200px;
-        margin: 2rem auto;
-        padding: 0 1.5rem 3rem;
+        width: min(1200px, 100% - 2rem);
+        margin: 2rem auto 3rem;
+        padding: 0 0 3rem;
         flex: 1;
-        width: 100%;
       }
 
       #status {
@@ -330,8 +338,8 @@
 
       .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.75rem;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.5rem;
       }
 
       .card {
@@ -343,6 +351,12 @@
         display: flex;
         flex-direction: column;
         min-height: 420px;
+        transition: transform 160ms ease, box-shadow 160ms ease;
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 30px 60px rgba(15, 23, 42, 0.15);
       }
 
       .card img {
@@ -510,9 +524,195 @@
         color: #166534;
       }
 
-      .form-feedback.error {
-        background: #fee2e2;
-        color: #b91c1c;
+      .properties-container {
+        display: flex;
+        gap: 2rem;
+        align-items: flex-start;
+      }
+
+      .sidebar {
+        width: 280px;
+        flex-shrink: 0;
+        background: #fff;
+        color: #0f172a;
+        border-radius: 16px;
+        padding: 1.5rem;
+        position: sticky;
+        top: 90px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+      }
+
+      .sidebar h3 {
+        margin: 0 0 1.5rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #0f172a;
+      }
+
+      .sidebar label {
+        color: #475569;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .sidebar select {
+        width: 100%;
+        background: #f8fafc;
+        border: 1px solid #cbd5f5;
+        color: #0f172a;
+        margin-bottom: 1.25rem;
+      }
+
+      .sidebar-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .sidebar-slider-container {
+        margin-bottom: 1.5rem;
+      }
+
+      .sidebar-slider {
+        width: 100%;
+        height: 6px;
+        background: #cbd5f5;
+        border-radius: 3px;
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+      }
+
+      .sidebar-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        background: #0f766e;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+
+      .sidebar-slider::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        background: #0f766e;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+
+      .price-display {
+        color: #0f766e;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+        display: block;
+      }
+
+      .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        font-size: 0.95rem;
+        color: #475569;
+      }
+
+      .checkbox-item input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        border: 2px solid #cbd5f5;
+        background: #f8fafc;
+        appearance: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .checkbox-item input[type="checkbox"]:checked {
+        background: #0f766e;
+        border-color: #0f766e;
+      }
+
+      .checkbox-item input[type="checkbox"]:checked::after {
+        content: '✓';
+        position: absolute;
+        color: #fff;
+        font-size: 12px;
+        left: 3px;
+        top: 0px;
+      }
+
+      .sidebar button.apply-btn {
+        width: 100%;
+        background: #0f766e;
+        color: #fff;
+        font-weight: 700;
+        padding: 0.85rem;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        margin-top: 1rem;
+        transition: background 0.2s, transform 0.1s;
+        box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
+      }
+
+      .sidebar button.apply-btn:hover {
+        background: #115e59;
+        transform: translateY(-1px);
+      }
+
+      /* Adjust grid for sidebar layout */
+      .properties-content {
+        flex: 1;
+      }
+      
+      /* Hide old filters card styles if needed or reuse for search */
+      .search-hero-form {
+        max-width: 600px;
+        margin: 0 auto;
+        display: flex;
+        gap: 0.5rem;
+      }
+      
+      .search-hero-form input {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        border-radius: 99px;
+        border: 1px solid #cbd5f5;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      }
+
+      .search-hero-form button {
+        border-radius: 99px;
+        padding: 0 2rem;
+        background: #0f766e;
+        color: #fff;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+      }
+
+      @media (max-width: 900px) {
+        .properties-container {
+          flex-direction: column;
+        }
+        .sidebar {
+          width: 100%;
+          position: static;
+          margin-bottom: 2rem;
+        }
       }
     </style>
   </head>
@@ -521,7 +721,7 @@
       <nav>
         <div class="nav-content">
           <div class="brand">
-            <span>ArriendosTalca</span>
+            <span>HabiTalca</span>
             <span>Portal de Arriendos</span>
           </div>
           <div class="nav-links">
@@ -540,35 +740,8 @@
           <h1>Encuentra tu hogar ideal en Talca</h1>
           <p>Solo mostramos inmuebles de la Región del Maule, con datos frescos obtenidos por scraping.</p>
 
-          <form id="filters-form" class="filters-card">
-            <div class="pill-group">
-              <div class="pill">
-                <span>Región</span>
-                <span>Maule</span>
-              </div>
-              <div class="pill">
-                <span>Categoría</span>
-                <span>Inmuebles</span>
-              </div>
-            </div>
-            <input type="hidden" name="region" value="maule" />
-            <input type="hidden" name="category" value="inmuebles" />
-
-            <label>
-              Búsqueda rápida
-              <input type="text" name="search" placeholder="Ej: departamento 2 dorm" />
-            </label>
-
-            <label>
-              Página
-              <input type="number" name="page" min="1" value="1" />
-            </label>
-
-            <label>
-              Límite
-              <input type="number" name="limit" min="1" max="60" value="24" />
-            </label>
-
+          <form id="hero-search-form" class="search-hero-form">
+            <input type="text" name="search" placeholder="Ej: departamento 2 dorm" />
             <button type="submit">Buscar</button>
           </form>
         </div>
@@ -581,10 +754,77 @@
         </div>
 
         <section id="properties-tab" class="tab-content active">
-          <div id="status">Listo para consultar.</div>
-          <ul id="warnings"></ul>
-          <h2 class="section-heading" id="propiedades">Propiedades Destacadas</h2>
-          <section id="cards" class="grid"></section>
+          <div class="properties-container">
+            <aside class="sidebar">
+              <h3>Filtros</h3>
+              <form id="sidebar-filters-form">
+                <div class="sidebar-group">
+                  <label>Tipo de Propiedad</label>
+                  <select name="propertyType">
+                    <option value="">Todos los tipos</option>
+                    <option value="casa">Casa</option>
+                    <option value="departamento">Departamento</option>
+                    <option value="parcela">Parcela / Terreno</option>
+                    <option value="oficina">Oficina / Local</option>
+                    <option value="habitacion">Habitación / Pieza</option>
+                    <option value="bodega">Bodega / Galpón</option>
+                  </select>
+                </div>
+
+                <div class="sidebar-group">
+                  <label>Ubicación</label>
+                  <select name="location">
+                    <option value="">Todas las ubicaciones</option>
+                    <option value="talca">Talca</option>
+                    <option value="curicó">Curicó</option>
+                    <option value="linares">Linares</option>
+                    <option value="cauquenes">Cauquenes</option>
+                    <option value="constitución">Constitución</option>
+                    <option value="parral">Parral</option>
+                    <option value="molina">Molina</option>
+                    <option value="san javier">San Javier</option>
+                    <option value="maule">Maule</option>
+                    <option value="san clemente">San Clemente</option>
+                  </select>
+                </div>
+
+                <div class="sidebar-group">
+                  <label>Precio Máximo</label>
+                  <div class="sidebar-slider-container">
+                    <input type="range" name="maxPrice" min="0" max="2000000" step="50000" value="1000000" class="sidebar-slider" id="sidebar-price-slider">
+                    <span class="price-display" id="sidebar-price-display">$1.000.000</span>
+                  </div>
+                </div>
+
+                <div class="sidebar-group">
+                  <label>Dormitorios</label>
+                  <div class="checkbox-group">
+                    <label class="checkbox-item">
+                      <input type="checkbox" name="bedrooms" value="1"> 1 dormitorio
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" name="bedrooms" value="2"> 2 dormitorios
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" name="bedrooms" value="3"> 3 dormitorios
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" name="bedrooms" value="4+"> 4+ dormitorios
+                    </label>
+                  </div>
+                </div>
+
+                <button type="submit" class="apply-btn">Aplicar Filtros</button>
+              </form>
+            </aside>
+
+            <div class="properties-content">
+              <div id="status">Listo para consultar.</div>
+              <ul id="warnings"></ul>
+              <h2 class="section-heading" id="propiedades" style="margin-top:0;">Propiedades Destacadas</h2>
+              <section id="cards" class="grid"></section>
+            </div>
+          </div>
         </section>
 
         <section id="profile-tab" class="tab-content">
@@ -731,7 +971,17 @@
       const TOKEN_KEY = 'at_auth_token';
       const EMAIL_KEY = 'at_auth_email';
       const USER_KEY = 'at_auth_user';
-      const form = document.getElementById('filters-form');
+      const CLIENT_FILTER_KEYS = ['propertyType', 'location', 'maxPrice', 'bedrooms'];
+      const PROPERTY_TYPE_KEYWORDS = {
+        casa: ['casa'],
+        departamento: ['departamento', 'depto', 'departamento'],
+        parcela: ['parcela', 'terreno', 'sitio', 'campo'],
+        oficina: ['oficina', 'local', 'comercial'],
+        habitacion: ['habitación', 'habitacion', 'pieza'],
+        bodega: ['bodega', 'galpón', 'galpon'],
+      };
+      const heroForm = document.getElementById('hero-search-form');
+      const sidebarForm = document.getElementById('sidebar-filters-form');
       const statusEl = document.getElementById('status');
       const cardsContainer = document.getElementById('cards');
       const warningsEl = document.getElementById('warnings');
@@ -760,14 +1010,130 @@
       const profilePanel = tabPanels.profile;
       let activeTab = 'properties';
 
-      const formDataToParams = (formData) => {
+      const getCombinedFilters = () => {
+        const heroData = new FormData(heroForm);
+        const sidebarData = new FormData(sidebarForm);
         const params = {};
-        for (const [key, value] of formData.entries()) {
-          if (value) {
+        
+        // Defaults
+        params.region = 'maule';
+        params.category = 'inmuebles';
+        params.limit = 24;
+        params.page = 1;
+
+        for (const [key, value] of heroData.entries()) {
+          if (value) params[key] = value;
+        }
+        
+        // Handle sidebar data
+        // For checkboxes (bedrooms), we need to collect all values
+        const bedrooms = [];
+        for (const [key, value] of sidebarData.entries()) {
+          if (key === 'bedrooms') {
+            bedrooms.push(value);
+          } else if (value) {
             params[key] = value;
           }
         }
+        if (bedrooms.length > 0) {
+          params.bedrooms = bedrooms;
+        }
+
         return params;
+      };
+
+      const separateFilters = (params = {}) => {
+        const server = {};
+        const client = {};
+        Object.entries(params).forEach(([key, value]) => {
+          if (CLIENT_FILTER_KEYS.includes(key)) {
+            client[key] = value;
+          } else {
+            server[key] = value;
+          }
+        });
+        return { server, client };
+      };
+
+      const normalizeClientFilters = (filters = {}) => {
+        const toNumber = (raw) => {
+          if (raw === null || typeof raw === 'undefined') return null;
+          if (typeof raw === 'string' && !raw.trim()) return null;
+          const parsed = Number(raw);
+          return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+        };
+
+        const normalized = {
+          propertyType: (filters.propertyType || '').toLowerCase(),
+          location: (filters.location || '').toLowerCase(),
+          maxPrice: toNumber(filters.maxPrice),
+          bedrooms: Array.isArray(filters.bedrooms) ? filters.bedrooms : [],
+        };
+        
+        normalized.hasActiveFilters = Boolean(
+          normalized.propertyType ||
+            normalized.location ||
+            normalized.maxPrice !== null ||
+            normalized.bedrooms.length > 0
+        );
+        return normalized;
+      };
+
+      const parsePriceToNumber = (priceText) => {
+        if (!priceText) return null;
+        const digits = priceText.replace(/[^0-9]/g, '');
+        if (!digits) return null;
+        const value = Number(digits);
+        return Number.isFinite(value) ? value : null;
+      };
+
+      const matchesPropertyType = (listing, propertyType) => {
+        if (!propertyType) return true;
+        const keywords = PROPERTY_TYPE_KEYWORDS[propertyType];
+        if (!keywords || !keywords.length) return true;
+        const haystack = `${listing.title || ''} ${listing.description || ''}`.toLowerCase();
+        return keywords.some((keyword) => haystack.includes(keyword));
+      };
+
+      const matchesLocation = (listingLocation, locationFilter) => {
+        if (!locationFilter) return true;
+        return (listingLocation || '').toLowerCase().includes(locationFilter);
+      };
+
+      const matchesPriceRange = (priceNumber, maxPrice) => {
+        if (maxPrice !== null && (priceNumber === null || priceNumber > maxPrice)) return false;
+        return true;
+      };
+
+      const matchesBedrooms = (listing, selectedBedrooms) => {
+        if (!selectedBedrooms || selectedBedrooms.length === 0) return true;
+        
+        // Try to extract bedrooms from title or description
+        // Patterns: "2 dorm", "3 habitaciones", "1 pieza"
+        const text = `${listing.title || ''} ${listing.description || ''}`.toLowerCase();
+        const match = text.match(/(\d+)\s*(dorm|habitaci|pieza)/);
+        
+        if (!match) return false; // If we can't find info, maybe exclude or include? Let's exclude to be strict.
+        
+        const count = parseInt(match[1]);
+        
+        return selectedBedrooms.some(val => {
+          if (val === '4+') return count >= 4;
+          return count === parseInt(val);
+        });
+      };
+
+      const applyClientFilters = (listings = [], filters = {}) => {
+        const normalized = normalizeClientFilters(filters);
+        const filtered = listings.filter((listing) => {
+          const priceNumber = parsePriceToNumber(listing.price);
+          const typeMatch = matchesPropertyType(listing, normalized.propertyType);
+          const locationMatch = matchesLocation(listing.location, normalized.location);
+          const priceMatch = matchesPriceRange(priceNumber, normalized.maxPrice);
+          const bedroomMatch = matchesBedrooms(listing, normalized.bedrooms);
+          return typeMatch && locationMatch && priceMatch && bedroomMatch;
+        });
+        return { filtered, normalized };
       };
 
       const renderWarnings = (warnings = []) => {
@@ -841,9 +1207,9 @@
         });
       };
 
-      const fetchListings = async (params = {}) => {
+      const fetchListings = async (serverParams = {}, clientFilters = {}) => {
         const url = new URL(API_BASE);
-        Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+        Object.entries(serverParams).forEach(([key, value]) => url.searchParams.set(key, value));
 
         statusEl.textContent = 'Consultando Yapo...';
         statusEl.style.color = '#38bdf8';
@@ -853,12 +1219,17 @@
           if (!response.ok) {
             throw new Error(`Error ${response.status}: ${response.statusText}`);
           }
-
           const payload = await response.json();
-          statusEl.textContent = `Recibidos ${payload.meta?.total ?? 0} avisos (mostrando ${payload.listings?.length ?? 0}).`;
+          const { filtered, normalized } = applyClientFilters(payload.listings || [], clientFilters);
+          const total = payload.meta?.total ?? payload.listings?.length ?? 0;
+          const filteredCount = filtered.length;
+          const baseMessage = `Recibidos ${total} avisos`;
+          statusEl.textContent = normalized.hasActiveFilters
+            ? `${baseMessage} (mostrando ${filteredCount} tras los filtros locales).`
+            : `${baseMessage} (mostrando ${filteredCount}).`;
           statusEl.style.color = '#22c55e';
           renderWarnings(payload.warnings || []);
-          renderListings(payload.listings || []);
+          renderListings(filtered);
         } catch (error) {
           console.error(error);
           statusEl.textContent = `Error consultando el backend: ${error.message}`;
@@ -867,11 +1238,15 @@
         }
       };
 
-      form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const params = formDataToParams(new FormData(form));
-        fetchListings(params);
-      });
+      const handleSearch = (event) => {
+        if (event) event.preventDefault();
+        const params = getCombinedFilters();
+        const { server, client } = separateFilters(params);
+        fetchListings(server, client);
+      };
+
+      heroForm.addEventListener('submit', handleSearch);
+      sidebarForm.addEventListener('submit', handleSearch);
 
       const setFeedback = (type, message, variant = 'error') => {
         const el = document.querySelector(`[data-feedback="${type}"]`);
@@ -1274,8 +1649,23 @@
         refreshProfileData({ silent: true });
       }
 
+      // Sidebar Slider Logic
+      const sidebarSlider = document.getElementById('sidebar-price-slider');
+      const sidebarPriceDisplay = document.getElementById('sidebar-price-display');
+
+      const formatPrice = (val) => {
+        return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(val);
+      };
+
+      if (sidebarSlider && sidebarPriceDisplay) {
+        sidebarSlider.addEventListener('input', (e) => {
+          const val = parseInt(e.target.value);
+          sidebarPriceDisplay.textContent = formatPrice(val);
+        });
+      }
+
       // Carga inicial
-      fetchListings({ region: 'maule', category: 'inmuebles', limit: 24, page: 1 });
+      fetchListings({ region: 'maule', category: 'inmuebles', limit: 24, page: 1 }, {});
     </script>
   </body>
 </html>
