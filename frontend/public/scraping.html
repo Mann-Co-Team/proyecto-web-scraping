@@ -99,6 +99,14 @@
         border-color: #0f766e;
       }
 
+      .auth-indicator {
+        font-size: 0.85rem;
+        color: #475569;
+        background: #e2e8f0;
+        padding: 0.3rem 0.75rem;
+        border-radius: 999px;
+      }
+
       .hero {
         background: linear-gradient(180deg, #f1f5f9 0%, #fff 55%);
         padding: 3rem 1.5rem 2rem;
@@ -312,6 +320,110 @@
         color: #64748b;
         font-size: 0.95rem;
       }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        backdrop-filter: blur(2px);
+        display: none;
+        z-index: 50;
+      }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 60;
+        padding: 1rem;
+      }
+
+      .modal-content {
+        width: min(420px, 100%);
+        background: #fff;
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: 0 30px 70px rgba(15, 23, 42, 0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .modal-content h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: #0f172a;
+      }
+
+      .modal-content p {
+        margin: 0;
+        color: #475569;
+        font-size: 0.95rem;
+      }
+
+      .modal-content form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+      }
+
+      .modal-content input {
+        width: 100%;
+      }
+
+      .modal-content button[type='submit'] {
+        border: none;
+        border-radius: 12px;
+        padding: 0.85rem 1rem;
+        background: #2563eb;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .modal-content .secondary {
+        background: transparent;
+        color: #475569;
+        border: 1px solid #cbd5f5;
+      }
+
+      .modal-content .link-button {
+        background: transparent;
+        color: #2563eb;
+        border: none;
+        padding: 0;
+        font-size: 0.95rem;
+        text-decoration: underline;
+        cursor: pointer;
+        align-self: flex-start;
+      }
+
+      .modal.show,
+      .modal-overlay.show {
+        display: flex;
+      }
+
+      .form-feedback {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 10px;
+        background: #fef3c7;
+        color: #92400e;
+        display: none;
+      }
+
+      .form-feedback.success {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .form-feedback.error {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
     </style>
   </head>
   <body>
@@ -325,8 +437,9 @@
           <div class="nav-links">
             <a href="#" class="active">Inicio</a>
             <a href="#propiedades">Propiedades</a>
-            <button type="button">Iniciar Sesión</button>
-            <button type="button" class="primary">Registrarse</button>
+            <span id="auth-indicator" class="auth-indicator">Visitante</span>
+            <button type="button" data-action="login">Iniciar Sesión</button>
+            <button type="button" class="primary" data-action="signup">Registrarse</button>
           </div>
         </div>
       </nav>
@@ -382,12 +495,118 @@
       </footer>
     </div>
 
+    <div id="modal-overlay" class="modal-overlay"></div>
+
+    <section id="login-modal" class="modal" aria-hidden="true">
+      <div class="modal-content">
+        <div>
+          <h3>Iniciar sesión</h3>
+          <p>Usa tus credenciales registradas para continuar.</p>
+        </div>
+        <form id="login-form">
+          <label>
+            Correo electrónico
+            <input type="email" name="email" placeholder="tu@email.com" required />
+          </label>
+          <label>
+            Contraseña
+            <input type="password" name="password" placeholder="********" minlength="6" required />
+          </label>
+          <p class="form-feedback" data-feedback="login"></p>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button type="submit">Ingresar</button>
+            <button type="button" class="secondary" data-close-modal="login">Cancelar</button>
+          </div>
+          <button type="button" class="link-button" data-open-modal="password">¿Olvidaste tu contraseña?</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="signup-modal" class="modal" aria-hidden="true">
+      <div class="modal-content">
+        <div>
+          <h3>Crear cuenta</h3>
+          <p>Registra un correo y contraseña para guardar tus búsquedas.</p>
+        </div>
+        <form id="signup-form">
+          <label>
+            Correo electrónico
+            <input type="email" name="email" placeholder="tu@email.com" required />
+          </label>
+          <label>
+            Contraseña (mínimo 6 caracteres)
+            <input type="password" name="password" placeholder="********" minlength="6" required />
+          </label>
+          <p class="form-feedback" data-feedback="signup"></p>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button type="submit">Registrarme</button>
+            <button type="button" class="secondary" data-close-modal="signup">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="password-modal" class="modal" aria-hidden="true">
+      <div class="modal-content">
+        <div>
+          <h3>Recuperar contraseña</h3>
+          <p>Genera un token y úsalo para definir una nueva contraseña.</p>
+        </div>
+        <form id="reset-request-form">
+          <label>
+            Correo asociado
+            <input type="email" name="email" placeholder="tu@email.com" required />
+          </label>
+          <p class="form-feedback" data-feedback="reset-request"></p>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button type="submit">Generar token</button>
+            <button type="button" class="secondary" data-close-modal="password">Cerrar</button>
+          </div>
+        </form>
+        <hr style="width:100%; border:none; border-top:1px solid #e2e8f0;" />
+        <form id="reset-confirm-form">
+          <label>
+            Token recibido
+            <input type="text" name="token" placeholder="Ingresa el token" required />
+          </label>
+          <label>
+            Nueva contraseña
+            <input type="password" name="password" placeholder="********" minlength="6" required />
+          </label>
+          <label>
+            Confirmar contraseña
+            <input type="password" name="confirmPassword" placeholder="********" minlength="6" required />
+          </label>
+          <p class="form-feedback" data-feedback="reset-confirm"></p>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button type="submit">Actualizar contraseña</button>
+            <button type="button" class="secondary" data-close-modal="password">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
     <script>
       const API_BASE = 'http://localhost:5000/api/yapo-listings';
+      const AUTH_BASE = 'http://localhost:5000/api/auth';
+      const TOKEN_KEY = 'at_auth_token';
+      const EMAIL_KEY = 'at_auth_email';
       const form = document.getElementById('filters-form');
       const statusEl = document.getElementById('status');
       const cardsContainer = document.getElementById('cards');
       const warningsEl = document.getElementById('warnings');
+      const overlay = document.getElementById('modal-overlay');
+      const loginModal = document.getElementById('login-modal');
+      const signupModal = document.getElementById('signup-modal');
+      const passwordModal = document.getElementById('password-modal');
+      const loginBtn = document.querySelector('[data-action="login"]');
+      const signupBtn = document.querySelector('[data-action="signup"]');
+      const forgotPasswordBtn = document.querySelector('[data-open-modal="password"]');
+      const authIndicator = document.getElementById('auth-indicator');
+      const loginForm = document.getElementById('login-form');
+      const signupForm = document.getElementById('signup-form');
+      const resetRequestForm = document.getElementById('reset-request-form');
+      const resetConfirmForm = document.getElementById('reset-confirm-form');
 
       const formDataToParams = (formData) => {
         const params = {};
@@ -501,6 +720,185 @@
         const params = formDataToParams(new FormData(form));
         fetchListings(params);
       });
+
+      const setFeedback = (type, message, variant = 'error') => {
+        const el = document.querySelector(`[data-feedback="${type}"]`);
+        if (!el) return;
+        if (!message) {
+          el.style.display = 'none';
+          el.textContent = '';
+          el.classList.remove('success', 'error');
+          return;
+        }
+        el.textContent = message;
+        el.style.display = 'block';
+        el.classList.remove('success', 'error');
+        if (variant === 'success') el.classList.add('success');
+        if (variant === 'error') el.classList.add('error');
+      };
+
+      const toggleModal = (modal, show) => {
+        if (!modal) return;
+        if (show) {
+          modal.classList.add('show');
+          overlay.classList.add('show');
+        } else {
+          modal.classList.remove('show');
+          overlay.classList.remove('show');
+          modal.querySelectorAll('.form-feedback').forEach((el) => {
+            const type = el.getAttribute('data-feedback');
+            if (type) setFeedback(type, '');
+          });
+          modal.querySelectorAll('form').forEach((formEl) => formEl.reset());
+        }
+      };
+
+      const isAuthenticated = () => Boolean(localStorage.getItem(TOKEN_KEY));
+
+      const updateAuthUI = () => {
+        if (isAuthenticated()) {
+          const email = localStorage.getItem(EMAIL_KEY) || 'Usuario autenticado';
+          authIndicator.textContent = email;
+          loginBtn.textContent = 'Cerrar sesión';
+          signupBtn.style.display = 'none';
+        } else {
+          authIndicator.textContent = 'Visitante';
+          loginBtn.textContent = 'Iniciar Sesión';
+          signupBtn.style.display = '';
+        }
+      };
+
+      loginBtn.addEventListener('click', () => {
+        if (isAuthenticated()) {
+          localStorage.removeItem(TOKEN_KEY);
+          localStorage.removeItem(EMAIL_KEY);
+          updateAuthUI();
+          statusEl.textContent = 'Sesión cerrada correctamente.';
+          statusEl.style.color = '#475569';
+          return;
+        }
+        toggleModal(loginModal, true);
+      });
+
+      signupBtn.addEventListener('click', () => toggleModal(signupModal, true));
+      overlay.addEventListener('click', () => {
+        toggleModal(loginModal, false);
+        toggleModal(signupModal, false);
+        toggleModal(passwordModal, false);
+      });
+      document.querySelectorAll('[data-close-modal]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-close-modal');
+          if (target === 'login') toggleModal(loginModal, false);
+          if (target === 'signup') toggleModal(signupModal, false);
+          if (target === 'password') toggleModal(passwordModal, false);
+        });
+      });
+
+      if (forgotPasswordBtn) {
+        forgotPasswordBtn.addEventListener('click', () => toggleModal(passwordModal, true));
+      }
+
+      loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        setFeedback('login', 'Verificando credenciales...', 'success');
+        const data = Object.fromEntries(new FormData(loginForm).entries());
+        try {
+          const response = await fetch(`${AUTH_BASE}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          });
+          const payload = await response.json();
+          if (!response.ok) {
+            throw new Error(payload.message || 'No se pudo iniciar sesión');
+          }
+          localStorage.setItem(TOKEN_KEY, payload.token);
+          localStorage.setItem(EMAIL_KEY, data.email);
+          setFeedback('login', 'Inicio de sesión exitoso.', 'success');
+          toggleModal(loginModal, false);
+          updateAuthUI();
+          statusEl.textContent = 'Sesión iniciada. Puedes acceder a rutas protegidas.';
+          statusEl.style.color = '#22c55e';
+        } catch (error) {
+          setFeedback('login', error.message, 'error');
+        }
+      });
+
+      signupForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        setFeedback('signup', 'Creando cuenta...', 'success');
+        const data = Object.fromEntries(new FormData(signupForm).entries());
+        try {
+          const response = await fetch(`${AUTH_BASE}/signup`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          });
+          const payload = await response.json();
+          if (!response.ok) {
+            throw new Error(payload.message || 'No se pudo registrar');
+          }
+          setFeedback('signup', 'Cuenta creada. Ahora inicia sesión.', 'success');
+          signupForm.reset();
+        } catch (error) {
+          setFeedback('signup', error.message, 'error');
+        }
+      });
+
+      if (resetRequestForm) {
+        resetRequestForm.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          setFeedback('reset-request', 'Generando token de recuperación...', 'success');
+          const data = Object.fromEntries(new FormData(resetRequestForm).entries());
+          try {
+            const response = await fetch(`${AUTH_BASE}/forgot-password`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data),
+            });
+            const payload = await response.json();
+            if (!response.ok) {
+              throw new Error(payload.message || 'No se pudo generar el token');
+            }
+            const tokenNote = payload.token ? ` Token: ${payload.token}` : '';
+            setFeedback('reset-request', `${payload.message || 'Solicitud enviada.'}${tokenNote}`, 'success');
+            resetRequestForm.reset();
+          } catch (error) {
+            setFeedback('reset-request', error.message, 'error');
+          }
+        });
+      }
+
+      if (resetConfirmForm) {
+        resetConfirmForm.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          const dataEntries = Object.fromEntries(new FormData(resetConfirmForm).entries());
+          if (dataEntries.password !== dataEntries.confirmPassword) {
+            setFeedback('reset-confirm', 'Las contraseñas no coinciden.', 'error');
+            return;
+          }
+          setFeedback('reset-confirm', 'Actualizando contraseña...', 'success');
+          try {
+            const response = await fetch(`${AUTH_BASE}/reset-password`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token: dataEntries.token, password: dataEntries.password }),
+            });
+            const payload = await response.json();
+            if (!response.ok) {
+              throw new Error(payload.message || 'No se pudo actualizar la contraseña');
+            }
+            setFeedback('reset-confirm', payload.message || 'Contraseña actualizada.', 'success');
+            resetConfirmForm.reset();
+            setTimeout(() => toggleModal(passwordModal, false), 1500);
+          } catch (error) {
+            setFeedback('reset-confirm', error.message, 'error');
+          }
+        });
+      }
+
+      updateAuthUI();
 
       // Carga inicial
       fetchListings({ region: 'maule', category: 'inmuebles', limit: 24, page: 1 });

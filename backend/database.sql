@@ -5,6 +5,7 @@ USE web_scraper_db;
 -- Eliminar tablas si ya existen
 DROP TABLE IF EXISTS scraping_results;
 DROP TABLE IF EXISTS scraping_jobs;
+DROP TABLE IF EXISTS password_resets;
 DROP TABLE IF EXISTS users;
 
 
@@ -36,6 +37,18 @@ CREATE TABLE scraping_results (
     data JSON NOT NULL,
     error TEXT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabla para gestionar tokens de recuperación de contraseña
+CREATE TABLE password_resets (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    used_at DATETIME NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_password_resets_user FOREIGN KEY (user_id)
+        REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Trigger para actualizar el campo updated_at en la tabla users
