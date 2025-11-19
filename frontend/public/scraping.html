@@ -373,6 +373,38 @@
         flex: 1;
       }
 
+      .card-details {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        color: #475569;
+        font-size: 0.9rem;
+      }
+
+      .card-details__item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+
+      .card-details__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #0f172a;
+      }
+
+      .card-details__icon svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.5;
+      }
+
       .card h3 {
         margin: 0;
         font-size: 1.2rem;
@@ -704,6 +736,56 @@
         cursor: pointer;
       }
 
+      .password-field {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .password-field input {
+        flex: 1;
+        padding-right: 2.5rem;
+      }
+
+      .password-toggle {
+        position: absolute;
+        right: 0.75rem;
+        border: none;
+        background: transparent;
+        color: #475569;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        width: 1.75rem;
+        height: 1.75rem;
+      }
+
+      .password-toggle svg {
+        width: 20px;
+        height: 20px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.6;
+      }
+
+      .password-toggle .icon-eye-off {
+        display: none;
+      }
+
+      .password-toggle.is-active {
+        color: #0f766e;
+      }
+
+      .password-toggle.is-active .icon-eye {
+        display: none;
+      }
+
+      .password-toggle.is-active .icon-eye-off {
+        display: block;
+      }
+
       .toast-stack {
         position: fixed;
         top: 1.5rem;
@@ -940,7 +1022,21 @@
           </label>
           <label>
             Contraseña
-            <input type="password" name="password" placeholder="********" minlength="6" required />
+            <div class="password-field">
+              <input type="password" name="password" id="login-password" placeholder="********" minlength="6" autocomplete="current-password" required />
+              <button type="button" class="password-toggle" aria-label="Mostrar contraseña" aria-pressed="false">
+                <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M2.25 12s3.75-6 9.75-6 9.75 6 9.75 6-3.75 6-9.75 6-9.75-6-9.75-6Z" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M3 3l18 18" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M10.477 10.477A3 3 0 0 0 13.5 15" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M6.343 6.343C4.736 7.45 3.375 9.033 2.25 12c0 0 3.75 6 9.75 6 1.87 0 3.5-.45 4.9-1.126" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M17.657 17.657C19.264 16.55 20.625 14.967 21.75 12c0 0-3.75-6-9.75-6-.88 0-1.715.093-2.505.262" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+            </div>
           </label>
           <p class="form-feedback" data-feedback="login"></p>
           <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
@@ -969,7 +1065,21 @@
           </label>
           <label>
             Contraseña (mínimo 6 caracteres)
-            <input type="password" name="password" placeholder="********" minlength="6" required />
+            <div class="password-field">
+              <input type="password" name="password" id="signup-password" placeholder="********" minlength="6" autocomplete="new-password" required />
+              <button type="button" class="password-toggle" aria-label="Mostrar contraseña" aria-pressed="false">
+                <svg class="icon-eye" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M2.25 12s3.75-6 9.75-6 9.75 6 9.75 6-3.75 6-9.75 6-9.75-6-9.75-6Z" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <svg class="icon-eye-off" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M3 3l18 18" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M10.477 10.477A3 3 0 0 0 13.5 15" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M6.343 6.343C4.736 7.45 3.375 9.033 2.25 12c0 0 3.75 6 9.75 6 1.87 0 3.5-.45 4.9-1.126" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M17.657 17.657C19.264 16.55 20.625 14.967 21.75 12c0 0-3.75-6-9.75-6-.88 0-1.715.093-2.505.262" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+            </div>
           </label>
           <p class="form-feedback" data-feedback="signup"></p>
           <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
@@ -1084,6 +1194,96 @@
             toast.remove();
           }
         }, duration + 600);
+      };
+
+      const initPasswordToggles = () => {
+        document.querySelectorAll('.password-field').forEach((field) => {
+          const input = field.querySelector('input[type="password"], input[data-password]');
+          const toggle = field.querySelector('.password-toggle');
+          if (!input || !toggle) return;
+
+          const setVisibility = (shouldShow) => {
+            input.type = shouldShow ? 'text' : 'password';
+            toggle.classList.toggle('is-active', shouldShow);
+            toggle.setAttribute('aria-pressed', String(shouldShow));
+            toggle.setAttribute('aria-label', shouldShow ? 'Ocultar contraseña' : 'Mostrar contraseña');
+          };
+
+          setVisibility(false);
+
+          toggle.addEventListener('click', () => {
+            const isHidden = input.type === 'password';
+            setVisibility(isHidden);
+          });
+
+          if (input.form) {
+            input.form.addEventListener('reset', () => setVisibility(false));
+          }
+        });
+      };
+
+      const DETAIL_ICON_SVGS = {
+        area: `
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M7 17L17 7" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M10 7h7v7" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M7 10V3h7" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        `,
+        bed: `
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M3 10h18v6H3z" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M7 10V8a2 2 0 0 1 2-2h3" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M3 16v3" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M21 16v3" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        `,
+        bath: `
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M5 11V6a3 3 0 0 1 6 0v5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M5 11h14v3a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M7 18v2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M17 18v2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        `,
+        default: `
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 4v2"></path>
+            <path d="M12 18v2"></path>
+            <path d="M4 12h2"></path>
+            <path d="M18 12h2"></path>
+          </svg>
+        `,
+      };
+
+      const normalizeDetailLabel = (detail) => {
+        if (!detail) return '';
+        return detail.replace(/m2/gi, 'm²').trim();
+      };
+
+      const detectDetailType = (detail, index) => {
+        const normalized = (detail || '').toLowerCase();
+        if (normalized.includes('m')) return 'area';
+        if (normalized.includes('baño') || normalized.includes('bano')) return 'bath';
+        if (normalized.includes('hab') || normalized.includes('dorm')) return 'bed';
+        if (index === 0) return 'area';
+        if (index === 1) return 'bed';
+        if (index === 2) return 'bath';
+        return 'default';
+      };
+
+      const createDetailNode = (detail, index) => {
+        const li = document.createElement('li');
+        li.className = 'card-details__item';
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'card-details__icon';
+        const iconType = detectDetailType(detail, index);
+        iconSpan.innerHTML = DETAIL_ICON_SVGS[iconType] || DETAIL_ICON_SVGS.default;
+        const valueSpan = document.createElement('span');
+        valueSpan.textContent = normalizeDetailLabel(detail);
+        li.append(iconSpan, valueSpan);
+        return li;
       };
 
       const getCombinedFilters = () => {
@@ -1261,6 +1461,15 @@
             meta.className = 'meta';
             meta.textContent = [item.location, item.seller].filter(Boolean).join(' · ');
             body.appendChild(meta);
+          }
+
+          if (Array.isArray(item.details) && item.details.length) {
+            const detailList = document.createElement('ul');
+            detailList.className = 'card-details';
+            item.details.slice(0, 3).forEach((detail, index) => {
+              detailList.appendChild(createDetailNode(detail, index));
+            });
+            body.appendChild(detailList);
           }
 
           if (item.description) {
@@ -1715,6 +1924,7 @@
         });
       }
 
+      initPasswordToggles();
       updateAuthUI();
       if (isAuthenticated()) {
         refreshProfileData({ silent: true });

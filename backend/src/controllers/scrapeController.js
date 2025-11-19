@@ -123,8 +123,13 @@ const scrapeYapoPage = async (targetUrl) => {
           const descEl = ad.querySelector('.d3-ad-tile__short-description');
           const linkEl = ad.querySelector('a.d3-ad-tile__description');
           const imgEl = ad.querySelector('.d3-ad-tile__cover img');
+          const detailEls = ad.querySelectorAll('.d3-ad-tile__details-item');
 
           const cleanText = (node) => (node ? node.textContent.trim() : '');
+          const cleanDetail = (node) => {
+            if (!node) return '';
+            return node.textContent.replace(/\s+/g, ' ').trim();
+          };
 
           return {
             title: cleanText(titleEl),
@@ -134,6 +139,9 @@ const scrapeYapoPage = async (targetUrl) => {
             description: cleanText(descEl),
             image: imgEl ? imgEl.src : null,
             link: linkEl ? linkEl.href : null,
+            details: Array.from(detailEls)
+              .map((detail) => cleanDetail(detail))
+              .filter(Boolean),
           };
         })
         .filter((ad) => ad.title);
