@@ -4,6 +4,15 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>ArriendosTalca</title>
+        <script>
+            // Redirige la raíz del sitio a la página estática scraping.html
+            (function () {
+                const path = window.location.pathname;
+                if (path === '/' || path === '/index.html') {
+                    window.location.replace('/scraping.html');
+                }
+            })();
+        </script>
     </head>
     <body>
         <div id="root"></div>

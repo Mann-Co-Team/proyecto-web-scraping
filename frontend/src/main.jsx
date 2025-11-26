@@ -14,7 +14,7 @@ import { NotificationProvider } from './context/NotificationContext.jsx';
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     {/* 2. Envuelve tu App con BrowserRouter y tu AuthProvider */}
-    <BrowserRouter>
+    <BrowserRouter basename="/app">
       <NotificationProvider>
         <AuthProvider>
           <App />

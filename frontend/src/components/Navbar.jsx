@@ -40,6 +40,9 @@ export default function Navbar() {
 
             <div className="nav-menu">
               <Link to="/" className={navLinkClass('/')}>Inicio</Link>
+              <a href="/scraping.html" className="nav-link">
+                Landing Scraping
+              </a>
               <a href="#propiedades" className="nav-link">
                 Propiedades
               </a>
