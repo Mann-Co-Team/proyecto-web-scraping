@@ -1029,6 +1029,139 @@
         font-size: 0.75rem;
         font-weight: 700;
       }
+
+      .history-extension {
+        position: fixed;
+        right: 1.5rem;
+        bottom: 1.5rem;
+        width: min(340px, 90vw);
+        z-index: 120;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .history-toggle {
+        border-radius: 999px;
+        border: 1px solid #f97316;
+        background: #fff7ed;
+        color: #9a3412;
+        font-weight: 700;
+        padding: 0.5rem 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        box-shadow: 0 10px 25px rgba(249, 115, 22, 0.35);
+      }
+
+      .history-count {
+        min-width: 2rem;
+        height: 2rem;
+        border-radius: 999px;
+        background: #f97316;
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+      }
+
+      .history-extension__card {
+        border-radius: 20px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 25px 45px rgba(15, 23, 42, 0.18);
+        padding: 1.25rem;
+        display: none;
+      }
+
+      .history-extension--open .history-extension__card {
+        display: block;
+      }
+
+      .history-panel__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+
+      .history-panel__header h3 {
+        margin: 0;
+        font-size: 1rem;
+        color: #0f172a;
+      }
+
+      .history-clear-btn {
+        border-radius: 999px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #475569;
+        font-weight: 600;
+        padding: 0.3rem 0.85rem;
+        cursor: pointer;
+      }
+
+      .history-clear-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .history-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 0.65rem;
+        max-height: 320px;
+        overflow-y: auto;
+      }
+
+      .history-entry {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        padding: 0.65rem 0.75rem;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+      }
+
+      .history-entry__title {
+        margin: 0;
+        font-size: 0.95rem;
+        color: #0f172a;
+      }
+
+      .history-entry__meta {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.8rem;
+      }
+
+      .history-entry__actions {
+        display: flex;
+        gap: 0.35rem;
+      }
+
+      .history-entry__actions a {
+        border-radius: 999px;
+        border: 1px solid #dbeafe;
+        background: #eff6ff;
+        color: #1d4ed8;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .history-empty {
+        margin: 0;
+        color: #94a3b8;
+        font-style: italic;
+      }
       
       /* Hide old filters card styles if needed or reuse for search */
       .search-hero-form {
@@ -1495,6 +1628,21 @@
       </div>
     </section>
 
+    <div class="history-extension" id="history-extension" aria-live="polite">
+      <button type="button" class="history-toggle" id="history-toggle" aria-expanded="false" aria-controls="history-drawer">
+        <span>Historial reciente</span>
+        <span class="history-count" id="history-count">0</span>
+      </button>
+      <div class="history-extension__card" id="history-drawer">
+        <div class="history-panel__header">
+          <h3>Tus últimas propiedades</h3>
+          <button type="button" id="history-clear" class="history-clear-btn" disabled>Limpiar</button>
+        </div>
+        <p id="history-empty" class="history-empty">Aún no revisas ninguna propiedad.</p>
+        <ul id="history-list" class="history-list"></ul>
+      </div>
+    </div>
+
     <script>
       const API_BASE = 'http://localhost:5000/api/yapo-listings';
       const AUTH_BASE = 'http://localhost:5000/api/auth';
@@ -1510,6 +1658,9 @@
         habitacion: ['habitación', 'habitacion', 'pieza'],
         bodega: ['bodega', 'galpón', 'galpon'],
       };
+      const UF_TO_CLP_RATE = 37000;
+      const HISTORY_STORAGE_KEY = 'at_view_history';
+      const HISTORY_MAX_ENTRIES = 30;
       const heroForm = document.getElementById('hero-search-form');
       const sidebarForm = document.getElementById('sidebar-filters-form');
       const statusEl = document.getElementById('status');
@@ -1552,6 +1703,13 @@
       const paginationSummary = document.getElementById('pagination-summary');
       const paginationControls = document.getElementById('pagination-controls');
       const loadAllPagesBtn = document.getElementById('load-all-pages');
+      const historyListEl = document.getElementById('history-list');
+      const historyEmptyState = document.getElementById('history-empty');
+      const historyClearBtn = document.getElementById('history-clear');
+      const historyExtension = document.getElementById('history-extension');
+      const historyToggleBtn = document.getElementById('history-toggle');
+      const historyDrawer = document.getElementById('history-drawer');
+      const historyCountBadge = document.getElementById('history-count');
       const paginationState = {
         currentPage: 1,
         mode: 'single',
@@ -1576,6 +1734,184 @@
             toast.remove();
           }
         }, duration + 600);
+      };
+
+      const clpFormatter = new Intl.NumberFormat('es-CL', {
+        style: 'currency',
+        currency: 'CLP',
+        maximumFractionDigits: 0,
+      });
+
+      const extractUfNumericValue = (priceText) => {
+        if (!priceText || !/uf/i.test(priceText)) return null;
+        const normalized = priceText
+          .toLowerCase()
+          .replace(/[^0-9,\.]/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        const match = normalized.match(/(\d+(?:[\.,]\d+)?)/);
+        if (!match) return null;
+        const numeric = match[1].replace(/\./g, '').replace(',', '.');
+        const value = Number(numeric);
+        return Number.isFinite(value) ? value : null;
+      };
+
+      const convertUfToClp = (priceText) => {
+        const ufValue = extractUfNumericValue(priceText);
+        if (ufValue === null) return null;
+        return Math.round(ufValue * UF_TO_CLP_RATE);
+      };
+
+      const formatClpValue = (amount) => {
+        if (!Number.isFinite(amount)) return '';
+        return clpFormatter.format(Math.round(amount));
+      };
+
+      const formatPriceWithApproximation = (priceText) => {
+        if (!priceText) return '';
+        const clpApprox = convertUfToClp(priceText);
+        if (!clpApprox) return priceText;
+        return `${priceText} (~${formatClpValue(clpApprox)})`;
+      };
+
+      const readHistoryStore = () => {
+        const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
+        if (!raw) return {};
+        try {
+          const parsed = JSON.parse(raw);
+          return parsed && typeof parsed === 'object' ? parsed : {};
+        } catch (error) {
+          console.warn('Historial corrupto, se reiniciará.', error);
+          return {};
+        }
+      };
+
+      const writeHistoryStore = (store) => {
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(store || {}));
+      };
+
+      const getActiveHistoryKey = () => {
+        const user = getStoredUser();
+        if (user?.email) {
+          return `user:${user.email.toLowerCase()}`;
+        }
+        return 'guest';
+      };
+
+      const getHistoryEntries = (key = getActiveHistoryKey()) => {
+        const store = readHistoryStore();
+        const bucket = store[key];
+        return Array.isArray(bucket) ? bucket : [];
+      };
+
+      const persistHistoryEntries = (entries, key = getActiveHistoryKey()) => {
+        const store = readHistoryStore();
+        store[key] = entries;
+        writeHistoryStore(store);
+      };
+
+      const clearHistoryBucket = (key = getActiveHistoryKey(), { silent = false } = {}) => {
+        persistHistoryEntries([], key);
+        if (!silent) {
+          renderHistoryEntries();
+        }
+      };
+
+      const formatHistoryTimestamp = (timestamp) => {
+        if (!timestamp) return '';
+        const diffMs = Date.now() - Number(timestamp);
+        const minutes = Math.floor(diffMs / 60000);
+        if (minutes < 1) return 'Hace instantes';
+        if (minutes === 1) return 'Hace 1 minuto';
+        if (minutes < 60) return `Hace ${minutes} minutos`;
+        const hours = Math.floor(minutes / 60);
+        if (hours === 1) return 'Hace 1 hora';
+        if (hours < 24) return `Hace ${hours} horas`;
+        const days = Math.floor(hours / 24);
+        return days === 1 ? 'Hace 1 día' : `Hace ${days} días`;
+      };
+
+      const renderHistoryEntries = () => {
+        if (!historyListEl || !historyEmptyState) return;
+        const entries = getHistoryEntries();
+        const recent = entries.slice(0, 8);
+        historyListEl.innerHTML = '';
+        if (historyCountBadge) {
+          historyCountBadge.textContent = String(entries.length);
+        }
+        if (!recent.length) {
+          historyEmptyState.classList.remove('hidden');
+          if (historyClearBtn) {
+            historyClearBtn.disabled = true;
+          }
+          return;
+        }
+        historyEmptyState.classList.add('hidden');
+        if (historyClearBtn) {
+          historyClearBtn.disabled = false;
+        }
+        recent.forEach((entry) => {
+          const listItem = document.createElement('li');
+          listItem.className = 'history-entry';
+
+          const title = document.createElement('p');
+          title.className = 'history-entry__title';
+          title.textContent = entry.title || 'Propiedad sin título';
+          const meta = document.createElement('p');
+          meta.className = 'history-entry__meta';
+          const priceText = entry.price ? formatPriceWithApproximation(entry.price) : 'Precio no disponible';
+          const locationText = entry.location || 'Ubicación no indicada';
+          meta.textContent = `${priceText} · ${locationText} · ${formatHistoryTimestamp(entry.createdAt)}`;
+
+          const actions = document.createElement('div');
+          actions.className = 'history-entry__actions';
+          if (entry.link) {
+            const anchor = document.createElement('a');
+            anchor.href = entry.link;
+            anchor.target = '_blank';
+            anchor.rel = 'noopener noreferrer';
+            anchor.textContent = 'Ver aviso';
+            actions.appendChild(anchor);
+          }
+
+          listItem.append(title, meta, actions);
+          historyListEl.appendChild(listItem);
+        });
+      };
+
+      const recordViewedListing = (listing) => {
+        if (!listing) return;
+        const key = getActiveHistoryKey();
+        const entries = getHistoryEntries(key);
+        const identifier = String(
+          listing.link || `${listing.title ?? ''}-${listing.location ?? ''}-${listing.price ?? ''}`
+        ).trim();
+        if (!identifier) return;
+        const nextEntry = {
+          id: identifier,
+          title: listing.title || 'Propiedad sin título',
+          price: listing.price || '',
+          location: listing.location || '',
+          link: listing.link || '',
+          createdAt: Date.now(),
+        };
+        const filtered = entries.filter((entry) => entry.id !== identifier);
+        filtered.unshift(nextEntry);
+        const trimmed = filtered.slice(0, HISTORY_MAX_ENTRIES);
+        persistHistoryEntries(trimmed, key);
+        renderHistoryEntries();
+      };
+
+      const clearHistory = () => {
+        clearHistoryBucket(getActiveHistoryKey());
+        renderHistoryEntries();
+        showToast('Historial limpiado.', 'info');
+      };
+
+      const setHistoryDrawerOpen = (shouldOpen) => {
+        if (!historyExtension || !historyToggleBtn) return;
+        historyExtension.classList.toggle('history-extension--open', Boolean(shouldOpen));
+        historyToggleBtn.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
       };
 
       const toPositiveNumber = (value) => {
@@ -1873,6 +2209,10 @@
 
       const parsePriceToNumber = (priceText) => {
         if (!priceText) return null;
+        const clpFromUf = convertUfToClp(priceText);
+        if (clpFromUf !== null) {
+          return clpFromUf;
+        }
         const digits = priceText.replace(/[^0-9]/g, '');
         if (!digits) return null;
         const value = Number(digits);
@@ -1968,7 +2308,7 @@
           if (item.price) {
             const price = document.createElement('p');
             price.className = 'price';
-            price.textContent = item.price;
+            price.textContent = formatPriceWithApproximation(item.price);
             body.appendChild(price);
           }
 
@@ -2193,7 +2533,7 @@
           }
         }
         if (propertyModalTitle) propertyModalTitle.textContent = listing.title || 'Propiedad sin título';
-        if (propertyModalPrice) propertyModalPrice.textContent = listing.price || '';
+        if (propertyModalPrice) propertyModalPrice.textContent = formatPriceWithApproximation(listing.price || '');
         const metaParts = [listing.location, listing.seller].filter(Boolean);
         if (typeof listing.sourcePage === 'number') {
           metaParts.push(`Página ${listing.sourcePage}`);
@@ -2223,6 +2563,7 @@
           }
         }
 
+        recordViewedListing(listing);
         propertyModalOverlay.classList.add('show');
         propertyModal.classList.add('show');
         document.body.classList.add('no-scroll');
@@ -2309,6 +2650,7 @@
           exitProfileView();
           setFeedback('profile', '', 'success');
         }
+        renderHistoryEntries();
       };
 
       loginBtn.addEventListener('click', () => {
@@ -2344,6 +2686,17 @@
       if (brandHomeBtn) {
         brandHomeBtn.addEventListener('click', () => {
           exitProfileView();
+        });
+      }
+
+      if (historyClearBtn) {
+        historyClearBtn.addEventListener('click', clearHistory);
+      }
+
+      if (historyToggleBtn) {
+        historyToggleBtn.addEventListener('click', () => {
+          const isOpen = historyExtension?.classList.contains('history-extension--open');
+          setHistoryDrawerOpen(!isOpen);
         });
       }
 
@@ -2424,6 +2777,7 @@
           } else {
             setStoredUser({ email: data.email });
           }
+          clearHistoryBucket(getActiveHistoryKey(), { silent: true });
           setFeedback('login', 'Inicio de sesión exitoso.', 'success');
           toggleModal(loginModal, false);
           updateAuthUI();
