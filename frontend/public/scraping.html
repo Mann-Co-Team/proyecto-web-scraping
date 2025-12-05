@@ -23,6 +23,10 @@
         color: #0f172a;
       }
 
+      body.no-scroll {
+        overflow: hidden;
+      }
+
       .page {
         display: flex;
         flex-direction: column;
@@ -53,6 +57,25 @@
         display: flex;
         flex-direction: column;
         line-height: 1.1;
+      }
+
+      .brand-button {
+        border: none;
+        background: none;
+        text-align: left;
+        padding: 0;
+        cursor: pointer;
+      }
+
+      .brand-button span:first-child {
+        font-weight: 700;
+        color: #1d4ed8;
+        font-size: 1.2rem;
+      }
+
+      .brand-button span:last-child {
+        font-size: 0.85rem;
+        color: #64748b;
       }
 
       .brand span:first-child {
@@ -100,58 +123,91 @@
         border-color: #0f766e;
       }
 
-      .tab-controls {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin: 0 0 1.5rem;
-      }
-
-      .tab-controls button {
-        border-radius: 999px;
-        border: 1px solid #cbd5f5;
-        background: #f8fafc;
-        padding: 0.45rem 1.2rem;
-        font-weight: 600;
-        color: #475569;
-        cursor: pointer;
-      }
-
-      .tab-controls button.active {
-        background: #1d4ed8;
-        color: #fff;
-        border-color: #1d4ed8;
-      }
-
-      .tab-content {
-        display: none;
-      }
-
-      .tab-content.active {
+      .windows-layout {
         display: block;
+        margin-top: 2rem;
       }
 
-      .profile-card {
+      .app-window {
         background: #fff;
-        border-radius: 20px;
-        padding: 1.75rem;
+        border-radius: 28px;
         border: 1px solid #e2e8f0;
-        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
-        max-width: 640px;
+        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
       }
 
-      .profile-card h2 {
-        margin: 0 0 0.25rem;
+      .app-window__header {
+        padding: 1.5rem 1.75rem 1rem;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .app-window__header h2 {
+        margin: 0.25rem 0 0.4rem;
         font-size: 1.5rem;
         color: #0f172a;
       }
 
-      .profile-card p.description {
-        margin: 0 0 1rem;
+      .window-eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.75rem;
+        color: #94a3b8;
+        margin: 0;
+      }
+
+      .app-window__body {
+        padding: 1.75rem;
+      }
+
+      .page.profile-view .hero,
+      .page.profile-view .windows-layout {
+        display: none;
+      }
+
+      #profile-window {
+        display: none;
+        margin-top: 2rem;
+      }
+
+      .page.profile-view #profile-window {
+        display: block;
+      }
+
+      .window-back {
+        display: none;
+        align-items: center;
+        gap: 0.35rem;
+        border: none;
+        background: none;
+        color: #1d4ed8;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .page.profile-view .window-back {
+        display: inline-flex;
+      }
+
+      .window-back svg {
+        width: 1em;
+        height: 1em;
+      }
+
+      .profile-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+      }
+
+      .profile-panel .description {
+        margin: 0;
         color: #475569;
       }
 
-      .profile-card form {
+      .profile-panel form {
         display: flex;
         flex-direction: column;
         gap: 1rem;
@@ -304,7 +360,7 @@
       }
 
       main {
-        width: min(1200px, 100% - 2rem);
+        width: min(1280px, 100% - 2rem);
         margin: 2rem auto 3rem;
         padding: 0 0 3rem;
         flex: 1;
@@ -352,6 +408,10 @@
         flex-direction: column;
         min-height: 420px;
         transition: transform 160ms ease, box-shadow 160ms ease;
+      }
+
+      .card--interactive {
+        cursor: pointer;
       }
 
       .card:hover {
@@ -542,6 +602,165 @@
         display: flex;
       }
 
+      .property-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        backdrop-filter: blur(4px);
+        display: none;
+        z-index: 110;
+      }
+
+      .property-modal-overlay.show {
+        display: block;
+      }
+
+      .property-modal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        z-index: 111;
+      }
+
+      .property-modal.show {
+        display: flex;
+      }
+
+      .property-modal__panel {
+        width: min(960px, 100%);
+        max-height: 90vh;
+        background: #fff;
+        border-radius: 28px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 40px 90px rgba(15, 23, 42, 0.35);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .property-modal__media {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        background: #f1f5f9;
+        position: relative;
+      }
+
+      .property-modal__media img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .property-modal__body {
+        padding: 1.75rem;
+        overflow-y: auto;
+      }
+
+      .property-modal__header {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .property-modal__title {
+        margin: 0;
+        font-size: 1.75rem;
+        color: #0f172a;
+      }
+
+      .property-modal__meta {
+        color: #475569;
+        font-size: 0.95rem;
+      }
+
+      .property-modal__price {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #0f766e;
+      }
+
+      .property-modal__details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin: 0 0 1.25rem;
+        padding: 0;
+        list-style: none;
+      }
+
+      .property-modal__detail {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 0.85rem;
+        border-radius: 999px;
+        background: #f1f5f9;
+        color: #0f172a;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .property-modal__detail-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #0f172a;
+      }
+
+      .property-modal__detail-icon svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.5;
+      }
+
+      .property-modal__description {
+        white-space: pre-line;
+        line-height: 1.5;
+        color: #1f2937;
+      }
+
+      .property-modal__actions {
+        margin-top: 1.5rem;
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .property-modal__actions a,
+      .property-modal__actions button {
+        border-radius: 999px;
+        border: 1px solid #1d4ed8;
+        background: #1d4ed8;
+        color: #fff;
+        padding: 0.6rem 1.25rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .property-modal__close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        border: none;
+        background: rgba(15, 23, 42, 0.65);
+        color: #fff;
+        border-radius: 999px;
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
       .form-feedback {
         font-size: 0.9rem;
         padding: 0.5rem 0.75rem;
@@ -557,7 +776,8 @@
       }
 
       .properties-container {
-        display: flex;
+        display: grid;
+        grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
         gap: 2rem;
         align-items: flex-start;
       }
@@ -709,6 +929,106 @@
       .properties-content {
         flex: 1;
       }
+
+      .pagination-toolbar {
+        margin: 1.25rem 0 1.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+      }
+
+      .pagination-toolbar.hidden {
+        display: none;
+      }
+
+      .pagination-toolbar__top {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      .pagination-summary-text {
+        margin: 0;
+        font-weight: 600;
+        color: #475569;
+      }
+
+      .load-all-button {
+        border-radius: 999px;
+        border: 1px solid #f97316;
+        background: #fff7ed;
+        color: #c2410c;
+        font-weight: 600;
+        padding: 0.45rem 1rem;
+        cursor: pointer;
+        transition: background 0.2s ease, color 0.2s ease;
+      }
+
+      .load-all-button.is-active {
+        background: #f97316;
+        color: #fff;
+        border-color: #f97316;
+      }
+
+      .pagination-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        align-items: center;
+      }
+
+      .pagination-button {
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        color: #0f172a;
+        border-radius: 12px;
+        padding: 0.35rem 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease, color 0.2s ease, border 0.2s ease;
+      }
+
+      .pagination-button:is([disabled]) {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .pagination-button.is-active {
+        background: #f97316;
+        border-color: #f97316;
+        color: #fff;
+        box-shadow: 0 6px 18px rgba(249, 115, 22, 0.3);
+      }
+
+      .pagination-button.no-results:not(.is-active) {
+        opacity: 0.55;
+        border-style: dashed;
+      }
+
+      .pagination-ellipsis {
+        color: #94a3b8;
+        font-weight: 600;
+        padding: 0 0.35rem;
+      }
+
+      @media (min-width: 768px) {
+        .pagination-toolbar__top {
+          flex-wrap: nowrap;
+        }
+      }
+
+      .card-page-badge {
+        align-self: flex-start;
+        background: #fff7ed;
+        color: #c2410c;
+        border: 1px solid #fed7aa;
+        border-radius: 999px;
+        padding: 0.15rem 0.65rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
       
       /* Hide old filters card styles if needed or reuse for search */
       .search-hero-form {
@@ -843,7 +1163,7 @@
 
       @media (max-width: 900px) {
         .properties-container {
-          flex-direction: column;
+          grid-template-columns: 1fr;
         }
         .sidebar {
           width: 100%;
@@ -858,14 +1178,11 @@
       <div id="toast-stack" class="toast-stack" role="status" aria-live="polite"></div>
       <nav>
         <div class="nav-content">
-          <div class="brand">
+          <button type="button" class="brand-button" id="brand-home" aria-label="Volver a inicio">
             <span>HabiTalca</span>
             <span>Portal de Arriendos</span>
-          </div>
+          </button>
           <div class="nav-links">
-            <a href="#" class="active">Inicio</a>
-            <a href="#propiedades">Propiedades</a>
-            <a href="/app/">App React</a>
             <span id="auth-indicator" class="auth-indicator">Visitante</span>
             <button type="button" data-action="profile-tab" style="display:none;">Mi perfil</button>
             <button type="button" data-action="login">Iniciar Sesión</button>
@@ -887,117 +1204,138 @@
       </header>
 
       <main>
-        <div class="tab-controls">
-          <button type="button" class="tab-btn active" data-tab="properties">Propiedades</button>
-          <button type="button" class="tab-btn" data-tab="profile">Perfil</button>
-        </div>
-
-        <section id="properties-tab" class="tab-content active">
-          <div class="properties-container">
-            <aside class="sidebar">
-              <h3>Filtros</h3>
-              <form id="sidebar-filters-form">
-                <div class="sidebar-group">
-                  <label>Tipo de Propiedad</label>
-                  <select name="propertyType">
-                    <option value="">Todos los tipos</option>
-                    <option value="casa">Casa</option>
-                    <option value="departamento">Departamento</option>
-                    <option value="parcela">Parcela / Terreno</option>
-                    <option value="oficina">Oficina / Local</option>
-                    <option value="habitacion">Habitación / Pieza</option>
-                    <option value="bodega">Bodega / Galpón</option>
-                  </select>
-                </div>
-
-                <div class="sidebar-group">
-                  <label>Ubicación</label>
-                  <select name="location">
-                    <option value="">Todas las ubicaciones</option>
-                    <option value="talca">Talca</option>
-                    <option value="curicó">Curicó</option>
-                    <option value="linares">Linares</option>
-                    <option value="cauquenes">Cauquenes</option>
-                    <option value="constitución">Constitución</option>
-                    <option value="parral">Parral</option>
-                    <option value="molina">Molina</option>
-                    <option value="san javier">San Javier</option>
-                    <option value="maule">Maule</option>
-                    <option value="san clemente">San Clemente</option>
-                  </select>
-                </div>
-
-                <div class="sidebar-group">
-                  <label>Precio Máximo</label>
-                  <div class="sidebar-slider-container">
-                    <input type="range" name="maxPrice" min="0" max="2000000" step="50000" value="1000000" class="sidebar-slider" id="sidebar-price-slider">
-                    <span class="price-display" id="sidebar-price-display">$1.000.000</span>
-                  </div>
-                </div>
-
-                <div class="sidebar-group">
-                  <label>Dormitorios</label>
-                  <div class="checkbox-group">
-                    <label class="checkbox-item">
-                      <input type="checkbox" name="bedrooms" value="1"> 1 dormitorio
-                    </label>
-                    <label class="checkbox-item">
-                      <input type="checkbox" name="bedrooms" value="2"> 2 dormitorios
-                    </label>
-                    <label class="checkbox-item">
-                      <input type="checkbox" name="bedrooms" value="3"> 3 dormitorios
-                    </label>
-                    <label class="checkbox-item">
-                      <input type="checkbox" name="bedrooms" value="4+"> 4+ dormitorios
-                    </label>
-                  </div>
-                </div>
-
-                <button type="submit" class="apply-btn">Aplicar Filtros</button>
-              </form>
-            </aside>
-
-            <div class="properties-content">
-              <div id="status">Listo para consultar.</div>
-              <ul id="warnings"></ul>
-              <h2 class="section-heading" id="propiedades" style="margin-top:0;">Propiedades Destacadas</h2>
-              <section id="cards" class="grid"></section>
+        <div class="windows-layout">
+          <section id="propiedades" class="app-window app-window--wide">
+            <div class="app-window__header">
+              <p class="window-eyebrow">Listado en vivo</p>
+              <h2>Propiedades en arriendo</h2>
+              <p>Aplica filtros y explora los arriendos disponibles en Maule antes que cualquier otro tipo de publicación.</p>
             </div>
-          </div>
-        </section>
+            <div class="app-window__body">
+              <div class="properties-container">
+                <aside class="sidebar">
+                  <h3>Filtros</h3>
+                  <form id="sidebar-filters-form">
+                    <div class="sidebar-group">
+                      <label>Tipo de Propiedad</label>
+                      <select name="propertyType">
+                        <option value="">Todos los tipos</option>
+                        <option value="casa">Casa</option>
+                        <option value="departamento">Departamento</option>
+                        <option value="parcela">Parcela / Terreno</option>
+                        <option value="oficina">Oficina / Local</option>
+                        <option value="habitacion">Habitación / Pieza</option>
+                        <option value="bodega">Bodega / Galpón</option>
+                      </select>
+                    </div>
 
-        <section id="profile-tab" class="tab-content">
-          <div class="profile-card">
-            <h2>Mi perfil</h2>
-            <p class="description">Completa tu nombre y revisa los datos con los que te registraste.</p>
-            <form id="profile-form" class="hidden">
-              <label>
-                Nombre completo
-                <input type="text" name="name" placeholder="Tu nombre" />
-              </label>
-              <label>
-                Correo electrónico
-                <input type="email" name="email" placeholder="tu@email.com" required />
-              </label>
-              <div class="profile-actions">
-                <button type="submit">Guardar perfil</button>
-                <button type="button" class="secondary" id="toggle-password-fields">Cambiar contraseña</button>
+                    <div class="sidebar-group">
+                      <label>Ubicación</label>
+                      <select name="location">
+                        <option value="">Todas las ubicaciones</option>
+                        <option value="talca">Talca</option>
+                        <option value="curicó">Curicó</option>
+                        <option value="linares">Linares</option>
+                        <option value="cauquenes">Cauquenes</option>
+                        <option value="constitución">Constitución</option>
+                        <option value="parral">Parral</option>
+                        <option value="molina">Molina</option>
+                        <option value="san javier">San Javier</option>
+                        <option value="maule">Maule</option>
+                        <option value="san clemente">San Clemente</option>
+                      </select>
+                    </div>
+
+                    <div class="sidebar-group">
+                      <label>Precio Máximo</label>
+                      <div class="sidebar-slider-container">
+                        <input type="range" name="maxPrice" min="0" max="2000000" step="50000" value="1000000" class="sidebar-slider" id="sidebar-price-slider">
+                        <span class="price-display" id="sidebar-price-display">$1.000.000</span>
+                      </div>
+                    </div>
+
+                    <div class="sidebar-group">
+                      <label>Dormitorios</label>
+                      <div class="checkbox-group">
+                        <label class="checkbox-item">
+                          <input type="checkbox" name="bedrooms" value="1"> 1 dormitorio
+                        </label>
+                        <label class="checkbox-item">
+                          <input type="checkbox" name="bedrooms" value="2"> 2 dormitorios
+                        </label>
+                        <label class="checkbox-item">
+                          <input type="checkbox" name="bedrooms" value="3"> 3 dormitorios
+                        </label>
+                        <label class="checkbox-item">
+                          <input type="checkbox" name="bedrooms" value="4+"> 4+ dormitorios
+                        </label>
+                      </div>
+                    </div>
+
+                    <button type="submit" class="apply-btn">Aplicar Filtros</button>
+                  </form>
+                </aside>
+
+                <div class="properties-content">
+                  <div id="status">Listo para consultar.</div>
+                  <ul id="warnings"></ul>
+                  <div id="pagination-toolbar" class="pagination-toolbar hidden">
+                    <div class="pagination-toolbar__top">
+                      <p id="pagination-summary" class="pagination-summary-text">Paginación disponible cuando exista más de una página.</p>
+                      <button type="button" id="load-all-pages" class="load-all-button">Cargar todas las páginas</button>
+                    </div>
+                    <div id="pagination-controls" class="pagination-controls" role="navigation" aria-label="Paginación"></div>
+                  </div>
+                  <section id="cards" class="grid"></section>
+                </div>
               </div>
-              <div id="password-fields" class="password-fields">
+            </div>
+          </section>
+        </div>
+        <section id="profile-window" class="app-window">
+          <div class="app-window__header">
+            <button type="button" class="window-back" id="back-to-properties" aria-label="Volver a propiedades">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span>Volver a propiedades</span>
+            </button>
+            <p class="window-eyebrow">Panel personal</p>
+            <h2>Perfil y credenciales</h2>
+            <p>Inicia sesión para personalizar tus datos y mantener tu sesión segura.</p>
+          </div>
+          <div class="app-window__body">
+            <div class="profile-panel">
+              <p class="description">Completa tu nombre y revisa los datos con los que te registraste.</p>
+              <form id="profile-form" class="hidden">
                 <label>
-                  Nueva contraseña
-                  <input type="password" name="password" placeholder="********" minlength="6" />
+                  Nombre completo
+                  <input type="text" name="name" placeholder="Tu nombre" />
                 </label>
                 <label>
-                  Confirmar contraseña
-                  <input type="password" name="confirmPassword" placeholder="********" minlength="6" />
+                  Correo electrónico
+                  <input type="email" name="email" placeholder="tu@email.com" required />
                 </label>
-                <small style="color:#475569;">La contraseña debe tener al menos 6 caracteres.</small>
+                <div class="profile-actions">
+                  <button type="submit">Guardar perfil</button>
+                  <button type="button" class="secondary" id="toggle-password-fields">Cambiar contraseña</button>
+                </div>
+                <div id="password-fields" class="password-fields">
+                  <label>
+                    Nueva contraseña
+                    <input type="password" name="password" placeholder="********" minlength="6" />
+                  </label>
+                  <label>
+                    Confirmar contraseña
+                    <input type="password" name="confirmPassword" placeholder="********" minlength="6" />
+                  </label>
+                  <small style="color:#475569;">La contraseña debe tener al menos 6 caracteres.</small>
+                </div>
+                <p class="form-feedback" data-feedback="profile"></p>
+              </form>
+              <div id="profile-locked" class="profile-empty">
+                Debes iniciar sesión para administrar tu perfil.
               </div>
-              <p class="form-feedback" data-feedback="profile"></p>
-            </form>
-            <div id="profile-locked" class="profile-empty">
-              Debes iniciar sesión para administrar tu perfil.
             </div>
           </div>
         </section>
@@ -1132,6 +1470,31 @@
       </div>
     </section>
 
+    <div id="property-modal-overlay" class="property-modal-overlay"></div>
+    <section id="property-modal" class="property-modal" aria-hidden="true">
+      <div class="property-modal__panel">
+        <div class="property-modal__media">
+          <img id="property-modal-image" src="" alt="" />
+          <button type="button" class="property-modal__close" id="property-modal-close" aria-label="Cerrar ficha">
+            ✕
+          </button>
+        </div>
+        <div class="property-modal__body">
+          <div class="property-modal__header">
+            <p class="property-modal__price" id="property-modal-price"></p>
+            <h3 class="property-modal__title" id="property-modal-title"></h3>
+            <p class="property-modal__meta" id="property-modal-meta"></p>
+          </div>
+          <ul class="property-modal__details" id="property-modal-details"></ul>
+          <p class="property-modal__description" id="property-modal-description"></p>
+          <div class="property-modal__actions">
+            <a id="property-modal-link" href="#" target="_blank" rel="noopener noreferrer">Ver aviso original</a>
+            <button type="button" id="property-modal-close-secondary">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <script>
       const API_BASE = 'http://localhost:5000/api/yapo-listings';
       const AUTH_BASE = 'http://localhost:5000/api/auth';
@@ -1169,14 +1532,32 @@
       const profileLockedMessage = document.getElementById('profile-locked');
       const passwordFields = document.getElementById('password-fields');
       const togglePasswordBtn = document.getElementById('toggle-password-fields');
-      const tabButtons = document.querySelectorAll('.tab-btn');
-      const tabPanels = {
-        properties: document.getElementById('properties-tab'),
-        profile: document.getElementById('profile-tab'),
-      };
-      const profilePanel = tabPanels.profile;
-      let activeTab = 'properties';
+      const profileWindow = document.getElementById('profile-window');
+      const pageShell = document.querySelector('.page');
+      const backToPropertiesBtn = document.getElementById('back-to-properties');
+      const brandHomeBtn = document.getElementById('brand-home');
+      const propertyModal = document.getElementById('property-modal');
+      const propertyModalOverlay = document.getElementById('property-modal-overlay');
+      const propertyModalImage = document.getElementById('property-modal-image');
+      const propertyModalTitle = document.getElementById('property-modal-title');
+      const propertyModalPrice = document.getElementById('property-modal-price');
+      const propertyModalMeta = document.getElementById('property-modal-meta');
+      const propertyModalDetails = document.getElementById('property-modal-details');
+      const propertyModalDescription = document.getElementById('property-modal-description');
+      const propertyModalLink = document.getElementById('property-modal-link');
+      const propertyModalClose = document.getElementById('property-modal-close');
+      const propertyModalCloseSecondary = document.getElementById('property-modal-close-secondary');
       const toastStack = document.getElementById('toast-stack');
+      const paginationToolbar = document.getElementById('pagination-toolbar');
+      const paginationSummary = document.getElementById('pagination-summary');
+      const paginationControls = document.getElementById('pagination-controls');
+      const loadAllPagesBtn = document.getElementById('load-all-pages');
+      const paginationState = {
+        currentPage: 1,
+        mode: 'single',
+        totalPages: 1,
+        availablePages: [],
+      };
       const TOAST_DURATION = 4000;
 
       const showToast = (message, variant = 'info', duration = TOAST_DURATION) => {
@@ -1195,6 +1576,140 @@
             toast.remove();
           }
         }, duration + 600);
+      };
+
+      const toPositiveNumber = (value) => {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+      };
+
+      const buildDisplayPages = (pages = []) => {
+        const sanitized = pages
+          .map((pageNumber) => toPositiveNumber(pageNumber))
+          .filter((pageNumber) => pageNumber !== null);
+        const sorted = Array.from(new Set(sanitized)).sort((a, b) => a - b);
+        if (!sorted.length) return [];
+        const sequence = [];
+        sorted.forEach((value, index) => {
+          if (index > 0 && value - sorted[index - 1] > 1) {
+            sequence.push('ellipsis');
+          }
+          sequence.push(value);
+        });
+        return sequence;
+      };
+
+      const updateLoadAllButtonState = (isActive) => {
+        if (!loadAllPagesBtn) return;
+        loadAllPagesBtn.classList.toggle('is-active', Boolean(isActive));
+        loadAllPagesBtn.textContent = isActive ? 'Mostrando todas las páginas' : 'Cargar todas las páginas';
+      };
+
+      const getPagesWithResults = (listings = []) => {
+        const pages = new Set();
+        listings.forEach((listing) => {
+          if (typeof listing.sourcePage === 'number' && Number.isFinite(listing.sourcePage)) {
+            pages.add(listing.sourcePage);
+          }
+        });
+        return Array.from(pages).sort((a, b) => a - b);
+      };
+
+      const renderPagination = (pagination = {}, meta = {}, filteredPages = []) => {
+        if (!paginationToolbar || !paginationSummary || !paginationControls) return;
+        if (!pagination) {
+          paginationToolbar.classList.add('hidden');
+          paginationControls.innerHTML = '';
+          paginationSummary.textContent = 'Paginación no disponible.';
+          updateLoadAllButtonState(false);
+          if (loadAllPagesBtn) {
+            loadAllPagesBtn.disabled = true;
+          }
+          return;
+        }
+        const multiPageAvailable = Array.isArray(pagination.pages) && pagination.pages.length > 1;
+        const multiPageAllowed = meta.multiPageAllowed !== false;
+        const filteredPagesSet = new Set(filteredPages.filter((value) => Number.isFinite(value)));
+        if (loadAllPagesBtn) {
+          loadAllPagesBtn.disabled = !multiPageAllowed;
+        }
+
+        if (!multiPageAvailable) {
+          paginationToolbar.classList.add('hidden');
+          paginationControls.innerHTML = '';
+          paginationSummary.textContent = 'Este resultado no ofrece más páginas.';
+          updateLoadAllButtonState(false);
+          paginationState.availablePages = pagination.pages || [];
+          paginationState.totalPages = pagination.totalPages || 1;
+          paginationState.mode = 'single';
+          return;
+        }
+
+        paginationToolbar.classList.remove('hidden');
+        paginationState.availablePages = pagination.pages;
+        paginationState.totalPages = pagination.totalPages || pagination.pages[pagination.pages.length - 1] || paginationState.totalPages;
+        paginationState.currentPage = pagination.currentPage || paginationState.currentPage;
+        const totalPages = paginationState.totalPages || pagination.pages[pagination.pages.length - 1] || paginationState.currentPage;
+
+        const fetchedPages = Array.isArray(pagination.fetchedPages) && pagination.fetchedPages.length
+          ? pagination.fetchedPages
+          : [pagination.currentPage];
+        const fetchMode = meta.fetchMode || (fetchedPages.length > 1 ? 'batch' : 'single');
+        if (fetchMode !== 'all' || !multiPageAllowed) {
+          paginationState.mode = 'single';
+          updateLoadAllButtonState(false);
+        } else {
+          paginationState.mode = 'all';
+          updateLoadAllButtonState(true);
+        }
+
+        const filteredSuffix =
+          filteredPagesSet.size > 0
+            ? ` | ${filteredPagesSet.size} página${filteredPagesSet.size === 1 ? '' : 's'} tras los filtros.`
+            : ' | Ninguna página coincide con los filtros.';
+
+        paginationSummary.textContent =
+          paginationState.mode === 'all'
+            ? `Mostrando ${fetchedPages.length} páginas (${fetchedPages.join(', ')}) de ${totalPages}${filteredSuffix}`
+            : `Página ${pagination.currentPage} de ${totalPages}${filteredSuffix}`;
+
+        paginationControls.innerHTML = '';
+        const prevButton = document.createElement('button');
+        prevButton.className = 'pagination-button';
+        prevButton.textContent = 'Anterior';
+        prevButton.disabled = !pagination.hasPrev || pagination.currentPage <= 1;
+        prevButton.addEventListener('click', () => goToPage(Math.max(1, pagination.currentPage - 1)));
+        paginationControls.appendChild(prevButton);
+
+        buildDisplayPages(pagination.pages).forEach((token) => {
+          if (token === 'ellipsis') {
+            const span = document.createElement('span');
+            span.className = 'pagination-ellipsis';
+            span.textContent = '...';
+            paginationControls.appendChild(span);
+            return;
+          }
+          const button = document.createElement('button');
+          button.className = 'pagination-button';
+          button.textContent = token;
+          const hasFilteredResults = filteredPagesSet.has(token);
+          button.classList.toggle('no-results', !hasFilteredResults);
+          button.title = hasFilteredResults
+            ? `Esta página contiene resultados tras los filtros.`
+            : 'Esta página no tiene coincidencias con los filtros actuales.';
+          if (token === pagination.currentPage) {
+            button.classList.add('is-active');
+          }
+          button.addEventListener('click', () => goToPage(token));
+          paginationControls.appendChild(button);
+        });
+
+        const nextButton = document.createElement('button');
+        nextButton.className = 'pagination-button';
+        nextButton.textContent = 'Siguiente';
+        nextButton.disabled = !pagination.hasNext || pagination.currentPage >= pagination.totalPages;
+        nextButton.addEventListener('click', () => goToPage(pagination.currentPage + 1));
+        paginationControls.appendChild(nextButton);
       };
 
       const initPasswordToggles = () => {
@@ -1274,11 +1789,11 @@
         return 'default';
       };
 
-      const createDetailNode = (detail, index) => {
+      const createDetailNode = (detail, index, variant = 'card') => {
         const li = document.createElement('li');
-        li.className = 'card-details__item';
+        li.className = variant === 'modal' ? 'property-modal__detail' : 'card-details__item';
         const iconSpan = document.createElement('span');
-        iconSpan.className = 'card-details__icon';
+        iconSpan.className = variant === 'modal' ? 'property-modal__detail-icon' : 'card-details__icon';
         const iconType = detectDetailType(detail, index);
         iconSpan.innerHTML = DETAIL_ICON_SVGS[iconType] || DETAIL_ICON_SVGS.default;
         const valueSpan = document.createElement('span');
@@ -1464,6 +1979,13 @@
             body.appendChild(meta);
           }
 
+          if (typeof item.sourcePage === 'number') {
+            const pageBadge = document.createElement('span');
+            pageBadge.className = 'card-page-badge';
+            pageBadge.textContent = `Página ${item.sourcePage}`;
+            body.appendChild(pageBadge);
+          }
+
           if (Array.isArray(item.details) && item.details.length) {
             const detailList = document.createElement('ul');
             detailList.className = 'card-details';
@@ -1489,6 +2011,13 @@
           }
 
           card.appendChild(body);
+          card.classList.add('card--interactive');
+          card.addEventListener('click', (event) => {
+            if (event.target.closest('a')) {
+              return;
+            }
+            openPropertyModal(item);
+          });
           cardsContainer.appendChild(card);
         });
       };
@@ -1497,7 +2026,7 @@
         const url = new URL(API_BASE);
         Object.entries(serverParams).forEach(([key, value]) => url.searchParams.set(key, value));
 
-        statusEl.textContent = 'Consultando Yapo...';
+        statusEl.textContent = 'Actualizando resultados...';
         statusEl.style.color = '#38bdf8';
 
         try {
@@ -1506,33 +2035,65 @@
             throw new Error(`Error ${response.status}: ${response.statusText}`);
           }
           const payload = await response.json();
+          const meta = payload.meta || {};
           const { filtered, normalized } = applyClientFilters(payload.listings || [], clientFilters);
-          const total = payload.meta?.total ?? payload.listings?.length ?? 0;
+          const total = meta.total ?? payload.listings?.length ?? 0;
           const filteredCount = filtered.length;
-          const baseMessage = `Recibidos ${total} avisos`;
+          const pagesFetchedCount = Array.isArray(meta.pagesFetched) ? meta.pagesFetched.length : 1;
+          const filteredPages = getPagesWithResults(filtered);
+          const paginationDescriptor = (() => {
+            if (meta.fetchMode === 'all') {
+              return ` abarcando ${pagesFetchedCount} páginas${meta.totalPages ? ` (total ${meta.totalPages})` : ''}`;
+            }
+            if (meta.totalPages) {
+              const current = meta.page || payload.pagination?.currentPage || paginationState.currentPage;
+              return ` (página ${current} de ${meta.totalPages})`;
+            }
+            return '';
+          })();
+          const baseMessage = `Recibidos ${total} avisos${paginationDescriptor}`;
           statusEl.textContent = normalized.hasActiveFilters
             ? `${baseMessage} (mostrando ${filteredCount} tras los filtros locales).`
             : `${baseMessage} (mostrando ${filteredCount}).`;
           statusEl.style.color = '#22c55e';
           renderWarnings(payload.warnings || []);
           renderListings(filtered);
+          renderPagination(payload.pagination || {}, meta, filteredPages);
         } catch (error) {
           console.error(error);
           statusEl.textContent = `Error consultando el backend: ${error.message}`;
           statusEl.style.color = '#f87171';
           renderListings([]);
+          renderPagination(null, {}, []);
         }
       };
 
-      const handleSearch = (event) => {
-        if (event) event.preventDefault();
+      const handleSearch = ({ resetPage = false } = {}) => {
+        if (resetPage) {
+          paginationState.currentPage = 1;
+        }
         const params = getCombinedFilters();
         const { server, client } = separateFilters(params);
+        server.page = paginationState.currentPage;
+        if (paginationState.mode === 'all') {
+          server.pages = 'all';
+        }
         fetchListings(server, client);
       };
 
-      heroForm.addEventListener('submit', handleSearch);
-      sidebarForm.addEventListener('submit', handleSearch);
+      heroForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        paginationState.mode = 'single';
+        updateLoadAllButtonState(false);
+        handleSearch({ resetPage: true });
+      });
+
+      sidebarForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        paginationState.mode = 'single';
+        updateLoadAllButtonState(false);
+        handleSearch({ resetPage: true });
+      });
 
       const setFeedback = (type, message, variant = 'error') => {
         const el = document.querySelector(`[data-feedback="${type}"]`);
@@ -1611,6 +2172,82 @@
         resetPasswordInputs();
       };
 
+      const cleanTextBlock = (text) =>
+        (text || '')
+          .replace(/\r\n|\r|\n/g, '\n')
+          .replace(/\n{3,}/g, '\n\n')
+          .trim();
+
+      const openPropertyModal = (listing) => {
+        if (!propertyModal || !propertyModalOverlay) return;
+        const imageSrc = listing.image || '';
+        if (propertyModalImage) {
+          if (imageSrc) {
+            propertyModalImage.src = imageSrc;
+            propertyModalImage.alt = listing.title || 'Imagen de la propiedad';
+            propertyModalImage.style.display = '';
+          } else {
+            propertyModalImage.removeAttribute('src');
+            propertyModalImage.alt = '';
+            propertyModalImage.style.display = 'none';
+          }
+        }
+        if (propertyModalTitle) propertyModalTitle.textContent = listing.title || 'Propiedad sin título';
+        if (propertyModalPrice) propertyModalPrice.textContent = listing.price || '';
+        const metaParts = [listing.location, listing.seller].filter(Boolean);
+        if (typeof listing.sourcePage === 'number') {
+          metaParts.push(`Página ${listing.sourcePage}`);
+        }
+        if (propertyModalMeta) propertyModalMeta.textContent = metaParts.join(' · ');
+
+        if (propertyModalDetails) {
+          propertyModalDetails.innerHTML = '';
+          (listing.details || []).forEach((detail, index) => {
+            propertyModalDetails.appendChild(createDetailNode(detail, index, 'modal'));
+          });
+          propertyModalDetails.style.display = listing.details?.length ? 'flex' : 'none';
+        }
+
+        if (propertyModalDescription) {
+          const normalizedDescription = listing.description || '';
+          propertyModalDescription.textContent = cleanTextBlock(normalizedDescription) || 'Sin descripción adicional.';
+        }
+
+        if (propertyModalLink) {
+          if (listing.link) {
+            propertyModalLink.href = listing.link;
+            propertyModalLink.style.display = '';
+          } else {
+            propertyModalLink.href = '#';
+            propertyModalLink.style.display = 'none';
+          }
+        }
+
+        propertyModalOverlay.classList.add('show');
+        propertyModal.classList.add('show');
+        document.body.classList.add('no-scroll');
+      };
+
+      const closePropertyModal = () => {
+        propertyModalOverlay?.classList.remove('show');
+        propertyModal?.classList.remove('show');
+        document.body.classList.remove('no-scroll');
+      };
+
+      const enterProfileView = () => {
+        if (!pageShell) return;
+        pageShell.classList.add('profile-view');
+        if (profileWindow) {
+          profileWindow.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      };
+
+      const exitProfileView = () => {
+        if (!pageShell) return;
+        pageShell.classList.remove('profile-view');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
       const refreshProfileData = async (options = {}) => {
         if (!isAuthenticated()) return null;
         try {
@@ -1646,21 +2283,6 @@
         }
       };
 
-      const setActiveTab = (tab) => {
-        if (!tabPanels[tab]) return;
-        activeTab = tab;
-        tabButtons.forEach((btn) => {
-          btn.classList.toggle('active', btn.getAttribute('data-tab') === tab);
-        });
-        Object.entries(tabPanels).forEach(([key, panel]) => {
-          if (!panel) return;
-          panel.classList.toggle('active', key === tab);
-        });
-        if (tab === 'profile' && isAuthenticated()) {
-          refreshProfileData({ silent: true });
-          setFeedback('profile', '', 'success');
-        }
-      };
       const updateAuthUI = () => {
         const storedUser = getStoredUser();
         if (isAuthenticated()) {
@@ -1684,9 +2306,7 @@
           }
           resetPasswordInputs();
           if (profileLockedMessage) profileLockedMessage.classList.remove('hidden');
-          if (activeTab === 'profile') {
-            setActiveTab('properties');
-          }
+          exitProfileView();
           setFeedback('profile', '', 'success');
         }
       };
@@ -1707,25 +2327,64 @@
         profileNavBtn.addEventListener('click', () => {
           if (!isAuthenticated()) {
             showToast('Inicia sesión para administrar tu perfil.', 'warning');
-            setActiveTab('properties');
+            exitProfileView();
             return;
           }
-          setActiveTab('profile');
-          if (profilePanel) {
-            profilePanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
+          enterProfileView();
+          refreshProfileData({ silent: true });
         });
       }
 
-      tabButtons.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const targetTab = btn.getAttribute('data-tab');
-          if (targetTab === 'profile' && !isAuthenticated()) {
-            showToast('Inicia sesión para administrar tu perfil.', 'warning');
+      if (backToPropertiesBtn) {
+        backToPropertiesBtn.addEventListener('click', () => {
+          exitProfileView();
+        });
+      }
+
+      if (brandHomeBtn) {
+        brandHomeBtn.addEventListener('click', () => {
+          exitProfileView();
+        });
+      }
+
+      if (loadAllPagesBtn) {
+        loadAllPagesBtn.addEventListener('click', () => {
+          if (loadAllPagesBtn.disabled) {
+            showToast('No se puede cargar todas las páginas con la URL actual.', 'warning');
             return;
           }
-          setActiveTab(targetTab);
+          const enteringAllMode = paginationState.mode !== 'all';
+          paginationState.mode = enteringAllMode ? 'all' : 'single';
+          paginationState.currentPage = 1;
+          updateLoadAllButtonState(enteringAllMode);
+          handleSearch({ resetPage: true });
         });
+      }
+
+      function goToPage(pageNumber) {
+        const sanitized = toPositiveNumber(pageNumber);
+        if (!sanitized) return;
+        const isSamePage = sanitized === paginationState.currentPage;
+        const wasAllMode = paginationState.mode === 'all';
+        paginationState.mode = 'single';
+        updateLoadAllButtonState(false);
+        if (isSamePage && !wasAllMode) return;
+        paginationState.currentPage = sanitized;
+        handleSearch();
+      }
+
+      propertyModalOverlay?.addEventListener('click', closePropertyModal);
+      propertyModal?.addEventListener('click', (event) => {
+        if (!event.target.closest('.property-modal__panel')) {
+          closePropertyModal();
+        }
+      });
+      propertyModalClose?.addEventListener('click', closePropertyModal);
+      propertyModalCloseSecondary?.addEventListener('click', closePropertyModal);
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && propertyModal?.classList.contains('show')) {
+          closePropertyModal();
+        }
       });
       overlay.addEventListener('click', () => {
         toggleModal(loginModal, false);
@@ -1947,7 +2606,7 @@
       }
 
       // Carga inicial
-      fetchListings({ region: 'maule', category: 'inmuebles', limit: 24, page: 1 }, {});
+      handleSearch({ resetPage: true });
     </script>
   </body>
 </html>
