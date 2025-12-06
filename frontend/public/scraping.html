@@ -65,15 +65,32 @@
         text-align: left;
         padding: 0;
         cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
       }
 
-      .brand-button span:first-child {
+      .brand-logo {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15);
+        flex-shrink: 0;
+      }
+
+      .brand-button__text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+      }
+
+      .brand-button__title {
         font-weight: 700;
         color: #1d4ed8;
         font-size: 1.2rem;
       }
 
-      .brand-button span:last-child {
+      .brand-button__subtitle {
         font-size: 0.85rem;
         color: #64748b;
       }
@@ -240,6 +257,39 @@
         background: #fef3c7;
         border: 1px solid #fcd34d;
         color: #92400e;
+      }
+
+      .profile-danger {
+        margin-top: 1.5rem;
+        padding: 1rem 1.25rem;
+        border-radius: 16px;
+        border: 1px solid #fecaca;
+        background: #fef2f2;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .profile-danger p {
+        margin: 0;
+        color: #b91c1c;
+        font-weight: 600;
+      }
+
+      .danger-button {
+        border: none;
+        border-radius: 12px;
+        padding: 0.85rem 1rem;
+        background: #dc2626;
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+      }
+
+      .danger-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
       }
 
       .hidden {
@@ -1312,8 +1362,11 @@
       <nav>
         <div class="nav-content">
           <button type="button" class="brand-button" id="brand-home" aria-label="Volver a inicio">
-            <span>HabiTalca</span>
-            <span>Portal de Arriendos</span>
+            <img src="./assets/habitalca-logo.svg" alt="Logo HabiTalca" class="brand-logo" width="56" height="56" />
+            <span class="brand-button__text">
+              <span class="brand-button__title">HabiTalca</span>
+              <span class="brand-button__subtitle">Portal de Arriendos</span>
+            </span>
           </button>
           <div class="nav-links">
             <span id="auth-indicator" class="auth-indicator">Visitante</span>
@@ -1465,6 +1518,10 @@
                   <small style="color:#475569;">La contraseña debe tener al menos 6 caracteres.</small>
                 </div>
                 <p class="form-feedback" data-feedback="profile"></p>
+                <div class="profile-danger">
+                  <p>¿Quieres dejar de usar HabiTalca?</p>
+                  <button type="button" class="danger-button" id="delete-account-btn">Eliminar cuenta</button>
+                </div>
               </form>
               <div id="profile-locked" class="profile-empty">
                 Debes iniciar sesión para administrar tu perfil.
@@ -1683,6 +1740,7 @@
       const profileLockedMessage = document.getElementById('profile-locked');
       const passwordFields = document.getElementById('password-fields');
       const togglePasswordBtn = document.getElementById('toggle-password-fields');
+      const deleteAccountBtn = document.getElementById('delete-account-btn');
       const profileWindow = document.getElementById('profile-window');
       const pageShell = document.querySelector('.page');
       const backToPropertiesBtn = document.getElementById('back-to-properties');
@@ -2693,6 +2751,58 @@
         historyClearBtn.addEventListener('click', clearHistory);
       }
 
+      if (deleteAccountBtn) {
+        deleteAccountBtn.addEventListener('click', async () => {
+          if (!isAuthenticated()) {
+            showToast('Debes iniciar sesión para eliminar tu cuenta.', 'warning');
+            return;
+          }
+          const confirmed = window.confirm(
+            'Esta acción eliminará tu cuenta y el historial asociado. ¿Deseas continuar?'
+          );
+          if (!confirmed) return;
+
+          const previousHistoryKey = getActiveHistoryKey();
+          const originalLabel = deleteAccountBtn.textContent;
+          deleteAccountBtn.disabled = true;
+          deleteAccountBtn.textContent = 'Eliminando...';
+
+          try {
+            const response = await fetch(`${AUTH_BASE}/me`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+                ...authHeaders(),
+              },
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+              if (response.status === 401) {
+                localStorage.removeItem(TOKEN_KEY);
+                setStoredUser(null);
+                updateAuthUI();
+              }
+              throw new Error(payload.message || 'No se pudo eliminar la cuenta.');
+            }
+            localStorage.removeItem(TOKEN_KEY);
+            setStoredUser(null);
+            clearHistoryBucket(previousHistoryKey, { silent: true });
+            renderHistoryEntries();
+            const successMessage = payload.message || 'Cuenta eliminada correctamente.';
+            setFeedback('profile', successMessage, 'success');
+            showToast(successMessage, 'info');
+            updateAuthUI();
+            exitProfileView();
+          } catch (error) {
+            setFeedback('profile', error.message, 'error');
+            showToast(error.message, 'error');
+          } finally {
+            deleteAccountBtn.disabled = false;
+            deleteAccountBtn.textContent = originalLabel;
+          }
+        });
+      }
+
       if (historyToggleBtn) {
         historyToggleBtn.addEventListener('click', () => {
           const isOpen = historyExtension?.classList.contains('history-extension--open');
@@ -2801,7 +2911,8 @@
           if (!response.ok) {
             throw new Error(payload.message || 'No se pudo registrar');
           }
-          setFeedback('signup', 'Cuenta creada. Ahora inicia sesión.', 'success');
+          const successMessage = payload.message || 'Cuenta creada. Revisa tu correo e inicia sesión.';
+          setFeedback('signup', successMessage, 'success');
           signupForm.reset();
         } catch (error) {
           setFeedback('signup', error.message, 'error');

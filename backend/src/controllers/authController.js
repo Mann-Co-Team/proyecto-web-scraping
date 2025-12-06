@@ -55,7 +55,35 @@ exports.signup = async (req, res) => {
     );
 
     const userRow = await fetchPublicUserById(result.insertId);
-    res.status(201).json({ user: sanitizeUser(userRow) });
+    const sanitizedUser = sanitizeUser(userRow);
+
+    let emailSent = false;
+    if (userRow?.email) {
+      const firstName = (userRow.name || 'Hola').split(' ')[0];
+      const subject = 'Confirmación de registro en HabiTalca';
+      const plainText = `${firstName}, confirmamos que tu cuenta en HabiTalca está activa. Desde ahora puedes iniciar sesión con tu correo y seguir tus búsquedas.`;
+      const htmlBody = `
+        <p style="margin:0 0 12px;">${firstName},</p>
+        <p style="margin:0 0 12px;">Confirmamos que tu cuenta en <strong>HabiTalca</strong> quedó activa. Ya puedes iniciar sesión, crear alertas y retomar tu historial de propiedades.</p>
+        <p style="margin:0 0 12px;">Si no solicitaste este registro, responde a este correo para que revisemos el caso.</p>
+        <p style="margin:0; color:#475569;">Equipo HabiTalca</p>
+      `;
+
+      try {
+        await sendMail({ to: userRow.email, subject, text: plainText, html: htmlBody });
+        emailSent = true;
+      } catch (mailError) {
+        const logMethod = mailError.message === 'EMAIL_CREDENTIALS_MISSING' ? console.warn : console.error;
+        logMethod('No se pudo enviar el correo de bienvenida:', mailError.message);
+      }
+    }
+
+    res.status(201).json({
+      user: sanitizedUser,
+      message: emailSent
+        ? 'Cuenta creada. Revisa tu correo para la confirmación.'
+        : 'Cuenta creada, pero no se pudo enviar el correo de confirmación automáticamente.',
+    });
   } catch (error) {
     if (isDuplicateEmailError(error)) {
       return res.status(409).json({ message: 'Email already in use.' });
@@ -296,5 +324,30 @@ exports.updateProfile = async (req, res) => {
     }
     console.error(error);
     res.status(500).json({ message: 'No se pudo actualizar el perfil.' });
+  }
+};
+
+exports.deleteAccount = async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ message: 'No autorizado.' });
+  }
+
+  try {
+    await pool.query('DELETE FROM password_resets WHERE user_id = ?', [userId]);
+    const [result] = await pool.query('DELETE FROM users WHERE id = ?', [userId]);
+    const affectedRows =
+      (result && typeof result.affectedRows === 'number' && result.affectedRows) ||
+      (result && typeof result.rowCount === 'number' && result.rowCount) ||
+      0;
+
+    if (!affectedRows) {
+      return res.status(404).json({ message: 'Usuario no encontrado.' });
+    }
+
+    res.json({ message: 'Cuenta eliminada correctamente.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'No se pudo eliminar la cuenta.' });
   }
 };

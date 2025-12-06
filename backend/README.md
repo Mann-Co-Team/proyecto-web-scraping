@@ -5,12 +5,21 @@
 Create a `.env` file (or update the existing one) with the following values in addition to the DB and JWT settings you already use:
 
 ```
-EMAIL_USER=tu-cuenta@gmail.com
-EMAIL_PASS=contraseña-o-app-password
+EMAIL_USER=notificaciones@tu-dominio.cl
+EMAIL_PASS=app-password-o-contraseña
+EMAIL_SERVICE=gmail            # opcional si usas un proveedor que Nodemailer conoce por nombre
+EMAIL_HOST=smtp.tu-dominio.cl  # usa host/port/secure si prefieres SMTP explícito
+EMAIL_PORT=465
+EMAIL_SECURE=true
+EMAIL_FROM="HabiTalca <notificaciones@tu-dominio.cl>"
 FRONTEND_BASE_URL=http://localhost:5173
 ```
 
-- `EMAIL_USER` / `EMAIL_PASS` must belong to una cuenta Gmail. Lo recomendable es generar un "App password" desde <https://myaccount.google.com/apppasswords> y no reutilizar tu contraseña normal.
+- `EMAIL_USER` / `EMAIL_PASS` deben pertenecer a la casilla que enviará los mensajes.
+- Usa `EMAIL_SERVICE` **o** (`EMAIL_HOST` + `EMAIL_PORT` + `EMAIL_SECURE`):
+   - Con Gmail u Outlook basta con indicar `EMAIL_SERVICE=gmail` o `EMAIL_SERVICE=hotmail` y un app password.
+   - Con un proveedor SMTP propio, especifica host, puerto y si la conexión es segura (`true/false`).
+- `EMAIL_FROM` permite personalizar el remitente que verán los usuarios; por defecto se usa `HabiTalca <EMAIL_USER>`.
 - `FRONTEND_BASE_URL` se usa para construir el enlace que llega en el correo. Ajusta si sirves la vista desde otra URL/puerto.
 
 ## Password reset flow
