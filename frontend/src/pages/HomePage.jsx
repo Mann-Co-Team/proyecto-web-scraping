@@ -6,6 +6,7 @@ const DEFAULT_SERVER_FILTERS = {
   region: 'maule',
   category: 'inmuebles',
   search: '',
+  sourceProvider: 'mixed',
 };
 
 const DEFAULT_CLIENT_FILTERS = {
@@ -13,6 +14,7 @@ const DEFAULT_CLIENT_FILTERS = {
   location: '',
   maxPrice: 1_000_000,
   bedrooms: [],
+  sourceProvider: 'mixed',
 };
 
 const PROPERTY_TYPE_KEYWORDS = {
@@ -22,6 +24,18 @@ const PROPERTY_TYPE_KEYWORDS = {
   oficina: ['oficina', 'local', 'comercial'],
   habitacion: ['habitación', 'habitacion', 'pieza'],
   bodega: ['bodega', 'galpón', 'galpon'],
+};
+
+const resolveSourceKey = (listing = {}) =>
+  String(listing.source || listing.sourceLabel || '').toLowerCase();
+
+const matchesSourceProvider = (listing, sourceProvider) => {
+  if (!sourceProvider || sourceProvider === 'mixed') return true;
+  const key = resolveSourceKey(listing);
+  if (!key) return sourceProvider !== 'mercadolibre';
+  if (sourceProvider === 'yapo') return key.includes('yapo');
+  if (sourceProvider === 'mercadolibre') return key.includes('mercado');
+  return true;
 };
 
 const LIMIT = 60;
@@ -46,8 +60,15 @@ const applyClientFilters = (listings, filters) => {
   const maxPrice = Number(filters.maxPrice) || null;
   const propertyType = filters.propertyType;
   const bedrooms = filters.bedrooms || [];
+  const sourceProvider = filters.sourceProvider || 'mixed';
 
-  const hasActiveFilters = Boolean(locationFilter || maxPrice || propertyType || bedrooms.length);
+  const hasActiveFilters = Boolean(
+    locationFilter ||
+      maxPrice ||
+      propertyType ||
+      bedrooms.length ||
+      (sourceProvider && sourceProvider !== 'mixed')
+  );
 
   const filtered = listings.filter((listing) => {
     const haystack = `${listing.title || ''} ${listing.description || ''}`.toLowerCase();
@@ -61,16 +82,17 @@ const applyClientFilters = (listings, filters) => {
     const bedroomsMatch = bedrooms.length
       ? bedrooms.some((value) => (value === '4+' ? (listingBedrooms ?? 0) >= 4 : listingBedrooms === Number(value)))
       : true;
+    const sourceMatch = matchesSourceProvider(listing, sourceProvider);
 
-    return locationMatch && priceMatch && typeMatch && bedroomsMatch;
+    return locationMatch && priceMatch && typeMatch && bedroomsMatch && sourceMatch;
   });
 
   return { filtered, hasActiveFilters };
 };
 
 export default function HomePage() {
-  const [serverFilters, setServerFilters] = useState(DEFAULT_SERVER_FILTERS);
-  const [clientFilters, setClientFilters] = useState(DEFAULT_CLIENT_FILTERS);
+  const [serverFilters, setServerFilters] = useState(() => ({ ...DEFAULT_SERVER_FILTERS }));
+  const [clientFilters, setClientFilters] = useState(() => ({ ...DEFAULT_CLIENT_FILTERS }));
   const [searchInput, setSearchInput] = useState('');
   const [rawListings, setRawListings] = useState([]);
   const [listings, setListings] = useState([]);
@@ -81,7 +103,7 @@ export default function HomePage() {
   const [clientSummary, setClientSummary] = useState({ filteredCount: 0, hasActiveFilters: false });
 
   const fetchListings = useCallback(
-    async ({ region, category, search }) => {
+    async ({ region, category, search, sourceProvider = 'mixed' }) => {
       setIsLoading(true);
       setError('');
       setWarnings([]);
@@ -91,6 +113,10 @@ export default function HomePage() {
         region,
         category,
       });
+
+      params.set('sourceProvider', sourceProvider);
+      params.set('includeMercadoLibre', sourceProvider === 'yapo' ? 'false' : 'true');
+      params.set('mercadoLibreLimit', '8');
 
       if (search.trim()) {
         params.set('search', search.trim());
@@ -125,7 +151,7 @@ export default function HomePage() {
   );
 
   useEffect(() => {
-    fetchListings(DEFAULT_SERVER_FILTERS);
+    fetchListings({ ...DEFAULT_SERVER_FILTERS });
   }, [fetchListings]);
 
   useEffect(() => {
@@ -136,15 +162,17 @@ export default function HomePage() {
 
   const handleHeroSubmit = (event) => {
     event.preventDefault();
-    const nextFilters = { ...serverFilters, search: searchInput };
+    const nextFilters = { ...serverFilters, search: searchInput, sourceProvider: clientFilters.sourceProvider };
     setServerFilters(nextFilters);
     fetchListings(nextFilters);
   };
 
   const handleHeroReset = () => {
     setSearchInput('');
-    setServerFilters(DEFAULT_SERVER_FILTERS);
-    fetchListings(DEFAULT_SERVER_FILTERS);
+    const resetServerFilters = { ...DEFAULT_SERVER_FILTERS };
+    setServerFilters(resetServerFilters);
+    setClientFilters({ ...DEFAULT_CLIENT_FILTERS });
+    fetchListings(resetServerFilters);
   };
 
   const handleSidebarChange = (patch) => {
@@ -152,7 +180,9 @@ export default function HomePage() {
   };
 
   const handleSidebarApply = () => {
-    fetchListings(serverFilters);
+    const nextFilters = { ...serverFilters, sourceProvider: clientFilters.sourceProvider };
+    setServerFilters(nextFilters);
+    fetchListings(nextFilters);
   };
 
   const stats = useMemo(() => {

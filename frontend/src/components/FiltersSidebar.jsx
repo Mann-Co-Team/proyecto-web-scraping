@@ -32,6 +32,12 @@ const BEDROOM_OPTIONS = [
   { value: '4+', label: '4+ dormitorios' },
 ];
 
+const SOURCE_OPTIONS = [
+  { value: 'mixed', label: 'Yapo + Mercado Libre' },
+  { value: 'yapo', label: 'Solo Yapo' },
+  { value: 'mercadolibre', label: 'Solo Mercado Libre' },
+];
+
 const formatCurrency = (value) =>
   new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(value);
 
@@ -86,6 +92,22 @@ export default function FiltersSidebar({ filters, onFiltersChange, onApply }) {
       </div>
 
       <div className="filters-sidebar__group">
+        <label htmlFor="sourceProvider">Fuente</label>
+        <select
+          id="sourceProvider"
+          name="sourceProvider"
+          value={filters.sourceProvider}
+          onChange={handleSelectChange}
+        >
+          {SOURCE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="filters-sidebar__group">
         <label htmlFor="maxPrice">Precio Máximo</label>
         <input
           id="maxPrice"
@@ -128,6 +150,7 @@ FiltersSidebar.propTypes = {
     location: PropTypes.string,
     maxPrice: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     bedrooms: PropTypes.arrayOf(PropTypes.string),
+    sourceProvider: PropTypes.string,
   }).isRequired,
   onFiltersChange: PropTypes.func.isRequired,
   onApply: PropTypes.func,

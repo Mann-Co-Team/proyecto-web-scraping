@@ -430,12 +430,6 @@
         text-align: center;
       }
 
-      #warnings {
-        margin: 0 0 1rem;
-        padding-left: 1.25rem;
-        color: #b45309;
-      }
-
       .section-heading {
         margin: 2.5rem 0 1rem;
         font-size: 1.75rem;
@@ -559,12 +553,51 @@
       }
 
       footer {
-        border-top: 1px solid #e2e8f0;
-        background: #fff;
-        text-align: center;
-        padding: 1.5rem 1rem;
-        color: #64748b;
+        margin-top: auto;
+      }
+
+      .site-footer {
+        border-top: 1px solid #111827;
+        background: #0f172a;
+        color: #e2e8f0;
+        padding: 2.5rem 1.25rem;
+      }
+
+      .footer-columns {
+        width: min(1100px, 100%);
+        margin: 0 auto 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .footer-column {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+      }
+
+      .footer-title {
+        margin: 0 0 0.3rem;
+        font-weight: 600;
+        color: #f8fafc;
+      }
+
+      .footer-link {
+        color: #cbd5f5;
+        text-decoration: none;
         font-size: 0.95rem;
+      }
+
+      .footer-link:hover {
+        color: #ffffff;
+      }
+
+      .footer-note {
+        width: min(1100px, 100%);
+        margin: 0 auto;
+        font-size: 0.85rem;
+        color: #94a3b8;
       }
 
       .modal-overlay {
@@ -907,12 +940,44 @@
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       }
 
+      .price-input-row {
+        margin-top: 0.65rem;
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+
       .price-display {
         color: #0f766e;
         font-weight: 600;
-        font-size: 1.1rem;
-        margin-top: 0.5rem;
-        display: block;
+        font-size: 1.05rem;
+        white-space: nowrap;
+      }
+
+      .sidebar-price-input {
+        flex: 1;
+        border: 1px solid #cbd5f5;
+        border-radius: 12px;
+        padding: 0.4rem 0.75rem;
+        font-weight: 600;
+        color: #0f172a;
+        background: #fff;
+      }
+
+      .sidebar-price-input:focus {
+        outline: 2px solid #0f766e;
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+      }
+
+      .sidebar-price-input::-webkit-outer-spin-button,
+      .sidebar-price-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      .sidebar-price-input[type='number'] {
+        -moz-appearance: textfield;
+        appearance: textfield;
       }
 
       .checkbox-group {
@@ -1022,6 +1087,39 @@
         border-color: #f97316;
       }
 
+      .load-all-button.is-loading {
+        position: relative;
+        background: #fdba74;
+        border-color: #fb923c;
+        color: #7c2d12;
+        cursor: progress;
+        padding-right: 2.75rem;
+        opacity: 0.9;
+      }
+
+      .load-all-button.is-loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        right: 1rem;
+        width: 0.9rem;
+        height: 0.9rem;
+        border-radius: 999px;
+        border: 2px solid rgba(124, 45, 18, 0.35);
+        border-top-color: #7c2d12;
+        transform: translateY(-50%);
+        animation: load-all-spin 0.85s linear infinite;
+      }
+
+      @keyframes load-all-spin {
+        from {
+          transform: translateY(-50%) rotate(0deg);
+        }
+        to {
+          transform: translateY(-50%) rotate(360deg);
+        }
+      }
+
       .pagination-controls {
         display: flex;
         flex-wrap: wrap;
@@ -1080,11 +1178,51 @@
         font-weight: 700;
       }
 
+      .card-source-badge {
+        align-self: flex-start;
+        margin-top: 0.35rem;
+      }
+
+      .property-modal__source {
+        display: none;
+        margin: 0;
+        align-self: flex-start;
+      }
+
+      .source-badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.2rem 0.65rem;
+        border: 1px solid transparent;
+        letter-spacing: 0.01em;
+      }
+
+      .source-badge--yapo {
+        background: #ecfccb;
+        border-color: #bef264;
+        color: #3f6212;
+      }
+
+      .source-badge--mercadolibre {
+        background: #fef3c7;
+        border-color: #fcd34d;
+        color: #92400e;
+      }
+
+      .source-badge--otras {
+        background: #e0e7ff;
+        border-color: #c7d2fe;
+        color: #3730a3;
+      }
+
       .history-extension {
         position: fixed;
         right: 1.5rem;
         bottom: 1.5rem;
-        width: min(340px, 90vw);
+        width: min(260px, 90vw);
         z-index: 120;
         display: flex;
         flex-direction: column;
@@ -1118,11 +1256,11 @@
       }
 
       .history-extension__card {
-        border-radius: 20px;
+        border-radius: 16px;
         background: #ffffff;
         border: 1px solid #e2e8f0;
-        box-shadow: 0 25px 45px rgba(15, 23, 42, 0.18);
-        padding: 1.25rem;
+        box-shadow: 0 18px 36px rgba(15, 23, 42, 0.18);
+        padding: 0.85rem 0.95rem;
         display: none;
       }
 
@@ -1134,13 +1272,13 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
+        gap: 0.5rem;
+        margin-bottom: 0.65rem;
       }
 
       .history-panel__header h3 {
         margin: 0;
-        font-size: 1rem;
+        font-size: 0.9rem;
         color: #0f172a;
       }
 
@@ -1164,36 +1302,37 @@
         margin: 0;
         padding: 0;
         display: grid;
-        gap: 0.65rem;
-        max-height: 320px;
+        gap: 0.45rem;
+        max-height: 220px;
         overflow-y: auto;
       }
 
       .history-entry {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
-        padding: 0.65rem 0.75rem;
-        border-radius: 12px;
+        gap: 0.2rem;
+        padding: 0.5rem 0.6rem;
+        border-radius: 10px;
         background: #f8fafc;
         border: 1px solid #e2e8f0;
       }
 
       .history-entry__title {
         margin: 0;
-        font-size: 0.95rem;
+        font-size: 0.85rem;
         color: #0f172a;
       }
 
       .history-entry__meta {
         margin: 0;
         color: #64748b;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
       }
 
       .history-entry__actions {
         display: flex;
-        gap: 0.35rem;
+        gap: 0.3rem;
+        align-items: center;
       }
 
       .history-entry__actions a {
@@ -1201,10 +1340,30 @@
         border: 1px solid #dbeafe;
         background: #eff6ff;
         color: #1d4ed8;
-        padding: 0.25rem 0.75rem;
-        font-size: 0.85rem;
+        padding: 0.2rem 0.6rem;
+        font-size: 0.8rem;
         font-weight: 600;
         text-decoration: none;
+      }
+
+      .history-entry__delete {
+        border: none;
+        background: transparent;
+        color: #9a3412;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .history-entry__delete:hover {
+        background: #fee2e2;
+        color: #b91c1c;
       }
 
       .history-empty {
@@ -1433,10 +1592,73 @@
                     </div>
 
                     <div class="sidebar-group">
-                      <label>Precio Máximo</label>
+                      <label>Fuente de datos</label>
+                      <select name="sourceProvider">
+                        <option value="mixed" selected>Yapo + Mercado Libre</option>
+                        <option value="yapo">Solo Yapo</option>
+                        <option value="mercadolibre">Solo Mercado Libre</option>
+                      </select>
+                    </div>
+
+                    <div class="sidebar-group">
+                      <label for="sidebar-min-price-slider">Precio Mínimo</label>
                       <div class="sidebar-slider-container">
-                        <input type="range" name="maxPrice" min="0" max="2000000" step="50000" value="1000000" class="sidebar-slider" id="sidebar-price-slider">
-                        <span class="price-display" id="sidebar-price-display">$1.000.000</span>
+                        <input
+                          type="range"
+                          name="minPrice"
+                          min="0"
+                          max="3000000"
+                          step="50000"
+                          value="0"
+                          class="sidebar-slider"
+                          id="sidebar-min-price-slider"
+                        >
+                        <div class="price-input-row">
+                          <span class="price-display" id="sidebar-min-price-display">$0</span>
+                          <input
+                            type="number"
+                            id="sidebar-min-price-input"
+                            class="sidebar-price-input"
+                            min="0"
+                            max="3000000"
+                            step="50000"
+                            inputmode="numeric"
+                            aria-label="Ingresar un mínimo manual"
+                            value="0"
+                            placeholder="$300.000"
+                          >
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="sidebar-group">
+                      <label for="sidebar-price-slider">Precio Máximo</label>
+                      <div class="sidebar-slider-container">
+                        <input
+                          type="range"
+                          name="maxPrice"
+                          min="0"
+                          max="3000000"
+                          step="50000"
+                          value="1000000"
+                          class="sidebar-slider"
+                          id="sidebar-price-slider"
+                        >
+                        <div class="price-input-row">
+                          <span class="price-display" id="sidebar-price-display">$1.000.000</span>
+                          <input
+                            type="number"
+                            id="sidebar-price-input"
+                            class="sidebar-price-input"
+                            min="0"
+                            max="3000000"
+                            step="50000"
+                            inputmode="numeric"
+                            aria-label="Ingresar un tope máximo manual"
+                            value="1000000"
+                            placeholder="$1.200.000"
+                          >
+                        </div>
                       </div>
                     </div>
 
@@ -1464,7 +1686,6 @@
 
                 <div class="properties-content">
                   <div id="status">Listo para consultar.</div>
-                  <ul id="warnings"></ul>
                   <div id="pagination-toolbar" class="pagination-toolbar hidden">
                     <div class="pagination-toolbar__top">
                       <p id="pagination-summary" class="pagination-summary-text">Paginación disponible cuando exista más de una página.</p>
@@ -1531,8 +1752,9 @@
         </section>
       </main>
 
-      <footer>
-        Datos obtenidos desde `/api/yapo-listings`. Inicia el backend antes de usar esta vista.
+      <footer class="site-footer">
+        <div class="footer-columns" aria-hidden="true"></div>
+        <div class="footer-note" aria-hidden="true"></div>
       </footer>
     </div>
 
@@ -1674,6 +1896,7 @@
             <p class="property-modal__price" id="property-modal-price"></p>
             <h3 class="property-modal__title" id="property-modal-title"></h3>
             <p class="property-modal__meta" id="property-modal-meta"></p>
+            <span class="property-modal__source source-badge" id="property-modal-source"></span>
           </div>
           <ul class="property-modal__details" id="property-modal-details"></ul>
           <p class="property-modal__description" id="property-modal-description"></p>
@@ -1692,7 +1915,7 @@
       </button>
       <div class="history-extension__card" id="history-drawer">
         <div class="history-panel__header">
-          <h3>Tus últimas propiedades</h3>
+          <h3>Tus últimas propiedades visitadas</h3>
           <button type="button" id="history-clear" class="history-clear-btn" disabled>Limpiar</button>
         </div>
         <p id="history-empty" class="history-empty">Aún no revisas ninguna propiedad.</p>
@@ -1706,7 +1929,7 @@
       const TOKEN_KEY = 'at_auth_token';
       const EMAIL_KEY = 'at_auth_email';
       const USER_KEY = 'at_auth_user';
-      const CLIENT_FILTER_KEYS = ['propertyType', 'location', 'maxPrice', 'bedrooms'];
+      const CLIENT_FILTER_KEYS = ['propertyType', 'location', 'minPrice', 'maxPrice', 'bedrooms', 'sourceProvider'];
       const PROPERTY_TYPE_KEYWORDS = {
         casa: ['casa'],
         departamento: ['departamento', 'depto', 'departamento'],
@@ -1722,7 +1945,6 @@
       const sidebarForm = document.getElementById('sidebar-filters-form');
       const statusEl = document.getElementById('status');
       const cardsContainer = document.getElementById('cards');
-      const warningsEl = document.getElementById('warnings');
       const overlay = document.getElementById('modal-overlay');
       const loginModal = document.getElementById('login-modal');
       const signupModal = document.getElementById('signup-modal');
@@ -1751,6 +1973,7 @@
       const propertyModalTitle = document.getElementById('property-modal-title');
       const propertyModalPrice = document.getElementById('property-modal-price');
       const propertyModalMeta = document.getElementById('property-modal-meta');
+      const propertyModalSource = document.getElementById('property-modal-source');
       const propertyModalDetails = document.getElementById('property-modal-details');
       const propertyModalDescription = document.getElementById('property-modal-description');
       const propertyModalLink = document.getElementById('property-modal-link');
@@ -1775,6 +1998,30 @@
         availablePages: [],
       };
       const TOAST_DURATION = 4000;
+
+      const SOURCE_DEFAULT_LABELS = {
+        yapo: 'Yapo.cl',
+        mercadolibre: 'Mercado Libre',
+        otras: 'Fuente externa',
+      };
+
+      const resolveListingSource = (listing = {}) => {
+        const rawValue = String(listing.source || listing.sourceLabel || '').trim();
+        if (!rawValue) {
+          return { key: 'yapo', label: SOURCE_DEFAULT_LABELS.yapo };
+        }
+        const normalized = rawValue.toLowerCase();
+        if (SOURCE_DEFAULT_LABELS[normalized]) {
+          return { key: normalized, label: listing.sourceLabel || SOURCE_DEFAULT_LABELS[normalized] };
+        }
+        if (normalized.includes('mercado')) {
+          return { key: 'mercadolibre', label: SOURCE_DEFAULT_LABELS.mercadolibre };
+        }
+        if (normalized.includes('yapo')) {
+          return { key: 'yapo', label: SOURCE_DEFAULT_LABELS.yapo };
+        }
+        return { key: 'otras', label: rawValue };
+      };
 
       const showToast = (message, variant = 'info', duration = TOAST_DURATION) => {
         if (!toastStack) return;
@@ -1875,6 +2122,21 @@
         }
       };
 
+      const removeHistoryEntry = (entryId, { silent = false } = {}) => {
+        if (!entryId) return false;
+        const key = getActiveHistoryKey();
+        const entries = getHistoryEntries(key);
+        const nextEntries = entries.filter((entry) => entry.id !== entryId);
+        if (nextEntries.length === entries.length) {
+          return false;
+        }
+        persistHistoryEntries(nextEntries, key);
+        if (!silent) {
+          renderHistoryEntries();
+        }
+        return true;
+      };
+
       const formatHistoryTimestamp = (timestamp) => {
         if (!timestamp) return '';
         const diffMs = Date.now() - Number(timestamp);
@@ -1915,6 +2177,7 @@
           const title = document.createElement('p');
           title.className = 'history-entry__title';
           title.textContent = entry.title || 'Propiedad sin título';
+
           const meta = document.createElement('p');
           meta.className = 'history-entry__meta';
           const priceText = entry.price ? formatPriceWithApproximation(entry.price) : 'Precio no disponible';
@@ -1931,6 +2194,14 @@
             anchor.textContent = 'Ver aviso';
             actions.appendChild(anchor);
           }
+
+          const deleteBtn = document.createElement('button');
+          deleteBtn.type = 'button';
+          deleteBtn.className = 'history-entry__delete';
+          deleteBtn.setAttribute('data-history-remove', entry.id);
+          deleteBtn.setAttribute('aria-label', 'Eliminar de historial');
+          deleteBtn.textContent = '×';
+          actions.appendChild(deleteBtn);
 
           listItem.append(title, meta, actions);
           historyListEl.appendChild(listItem);
@@ -1999,6 +2270,19 @@
         loadAllPagesBtn.textContent = isActive ? 'Mostrando todas las páginas' : 'Cargar todas las páginas';
       };
 
+      const setLoadAllLoadingState = (isLoading) => {
+        if (!loadAllPagesBtn) return;
+        const loading = Boolean(isLoading);
+        loadAllPagesBtn.classList.toggle('is-loading', loading);
+        loadAllPagesBtn.setAttribute('aria-busy', loading ? 'true' : 'false');
+        if (loading) {
+          loadAllPagesBtn.disabled = true;
+          loadAllPagesBtn.textContent = 'Cargando todas las páginas...';
+          return;
+        }
+        updateLoadAllButtonState(paginationState.mode === 'all');
+      };
+
       const getPagesWithResults = (listings = []) => {
         const pages = new Set();
         listings.forEach((listing) => {
@@ -2009,8 +2293,13 @@
         return Array.from(pages).sort((a, b) => a - b);
       };
 
-      const renderPagination = (pagination = {}, meta = {}, filteredPages = []) => {
+      const renderPagination = (pagination = {}, meta = {}, filteredPages = [], options = {}) => {
         if (!paginationToolbar || !paginationSummary || !paginationControls) return;
+        const {
+          filteredCount = 0,
+          totalCount = 0,
+          hasActiveFilters = false,
+        } = options || {};
         if (!pagination) {
           paginationToolbar.classList.add('hidden');
           paginationControls.innerHTML = '';
@@ -2021,7 +2310,8 @@
           }
           return;
         }
-        const multiPageAvailable = Array.isArray(pagination.pages) && pagination.pages.length > 1;
+        const basePages = Array.isArray(pagination.pages) ? pagination.pages : [];
+        const multiPageAvailable = basePages.length > 1;
         const multiPageAllowed = meta.multiPageAllowed !== false;
         const filteredPagesSet = new Set(filteredPages.filter((value) => Number.isFinite(value)));
         if (loadAllPagesBtn) {
@@ -2033,21 +2323,32 @@
           paginationControls.innerHTML = '';
           paginationSummary.textContent = 'Este resultado no ofrece más páginas.';
           updateLoadAllButtonState(false);
-          paginationState.availablePages = pagination.pages || [];
-          paginationState.totalPages = pagination.totalPages || 1;
+          paginationState.availablePages = basePages;
+          paginationState.totalPages = meta.totalPages || pagination.totalPages || basePages[0] || 1;
           paginationState.mode = 'single';
           return;
         }
 
         paginationToolbar.classList.remove('hidden');
-        paginationState.availablePages = pagination.pages;
-        paginationState.totalPages = pagination.totalPages || pagination.pages[pagination.pages.length - 1] || paginationState.totalPages;
-        paginationState.currentPage = pagination.currentPage || paginationState.currentPage;
-        const totalPages = paginationState.totalPages || pagination.pages[pagination.pages.length - 1] || paginationState.currentPage;
+        paginationState.availablePages = basePages;
+        const lastKnownPage = basePages[basePages.length - 1] || paginationState.totalPages || 1;
+        const computedTotalPages =
+          meta.totalPages || pagination.totalPages || lastKnownPage || paginationState.totalPages || 1;
+        paginationState.totalPages = computedTotalPages;
+        const incomingPage = Number.isFinite(meta.page)
+          ? meta.page
+          : Number.isFinite(pagination.currentPage)
+            ? pagination.currentPage
+            : null;
+        if (Number.isFinite(incomingPage)) {
+          paginationState.currentPage = incomingPage;
+        }
+        const activePage = paginationState.currentPage;
+        const totalPages = paginationState.totalPages || activePage;
 
-        const fetchedPages = Array.isArray(pagination.fetchedPages) && pagination.fetchedPages.length
-          ? pagination.fetchedPages
-          : [pagination.currentPage];
+        const fetchedPagesSource = [meta.pagesFetched, pagination.fetchedPages]
+          .find((pages) => Array.isArray(pages) && pages.length);
+        const fetchedPages = fetchedPagesSource || [pagination.currentPage || activePage];
         const fetchMode = meta.fetchMode || (fetchedPages.length > 1 ? 'batch' : 'single');
         if (fetchMode !== 'all' || !multiPageAllowed) {
           paginationState.mode = 'single';
@@ -2057,25 +2358,53 @@
           updateLoadAllButtonState(true);
         }
 
-        const filteredSuffix =
-          filteredPagesSet.size > 0
-            ? ` | ${filteredPagesSet.size} página${filteredPagesSet.size === 1 ? '' : 's'} tras los filtros.`
-            : ' | Ninguna página coincide con los filtros.';
+        const filteredPagesCount = filteredPagesSet.size;
+        const listingsLabel = (() => {
+          const noun = filteredCount === 1 ? 'aviso' : 'avisos';
+          if (hasActiveFilters) {
+            return `${filteredCount || 0} ${noun} tras filtros locales`;
+          }
+          return `${filteredCount || 0} ${noun} visibles`;
+        })();
 
-        paginationSummary.textContent =
+        const pagesLabel = (() => {
+          if (filteredPagesCount > 0) {
+            const suffix = filteredPagesCount === 1 ? '' : 's';
+            return `${filteredPagesCount} página${suffix} ${hasActiveFilters ? 'con coincidencias filtradas' : 'con avisos detectados'}`;
+          }
+          if (hasActiveFilters) {
+            return 'Ninguna página coincide con los filtros vigentes';
+          }
+          return filteredCount
+            ? 'Origen de página no especificado'
+            : 'Sin avisos para esta combinación todavía';
+        })();
+
+        const totalLabel = (() => {
+          if (!totalCount) return '';
+          if (hasActiveFilters) {
+            return ` · ${totalCount} hallados antes de filtrar`;
+          }
+          return totalCount !== filteredCount ? ` · ${totalCount} detectados en total` : '';
+        })();
+
+        const baseSummary =
           paginationState.mode === 'all'
-            ? `Mostrando ${fetchedPages.length} páginas (${fetchedPages.join(', ')}) de ${totalPages}${filteredSuffix}`
-            : `Página ${pagination.currentPage} de ${totalPages}${filteredSuffix}`;
+            ? `Explorando ${fetchedPages.length} página${fetchedPages.length === 1 ? '' : 's'} (${fetchedPages.join(', ')}) de ${totalPages}`
+            : `Página ${activePage} de ${totalPages}`;
+
+        paginationSummary.textContent = `${baseSummary} · ${listingsLabel} · ${pagesLabel}${totalLabel}`;
 
         paginationControls.innerHTML = '';
         const prevButton = document.createElement('button');
         prevButton.className = 'pagination-button';
         prevButton.textContent = 'Anterior';
-        prevButton.disabled = !pagination.hasPrev || pagination.currentPage <= 1;
-        prevButton.addEventListener('click', () => goToPage(Math.max(1, pagination.currentPage - 1)));
+        const hasPrev = activePage > 1;
+        prevButton.disabled = !hasPrev;
+        prevButton.addEventListener('click', () => goToPage(Math.max(1, activePage - 1)));
         paginationControls.appendChild(prevButton);
 
-        buildDisplayPages(pagination.pages).forEach((token) => {
+        buildDisplayPages(basePages.length ? basePages : [activePage]).forEach((token) => {
           if (token === 'ellipsis') {
             const span = document.createElement('span');
             span.className = 'pagination-ellipsis';
@@ -2091,7 +2420,7 @@
           button.title = hasFilteredResults
             ? `Esta página contiene resultados tras los filtros.`
             : 'Esta página no tiene coincidencias con los filtros actuales.';
-          if (token === pagination.currentPage) {
+          if (token === activePage) {
             button.classList.add('is-active');
           }
           button.addEventListener('click', () => goToPage(token));
@@ -2101,8 +2430,9 @@
         const nextButton = document.createElement('button');
         nextButton.className = 'pagination-button';
         nextButton.textContent = 'Siguiente';
-        nextButton.disabled = !pagination.hasNext || pagination.currentPage >= pagination.totalPages;
-        nextButton.addEventListener('click', () => goToPage(pagination.currentPage + 1));
+        const hasNext = activePage < totalPages;
+        nextButton.disabled = !hasNext;
+        nextButton.addEventListener('click', () => goToPage(Math.min(totalPages, activePage + 1)));
         paginationControls.appendChild(nextButton);
       };
 
@@ -2225,6 +2555,10 @@
           params.bedrooms = bedrooms;
         }
 
+        if (!params.sourceProvider) {
+          params.sourceProvider = 'mixed';
+        }
+
         return params;
       };
 
@@ -2249,18 +2583,38 @@
           return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
         };
 
+        let minPrice = toNumber(filters.minPrice);
+        let maxPrice = toNumber(filters.maxPrice);
+
+        if (minPrice !== null && minPrice <= 0) {
+          minPrice = null;
+        }
+        if (maxPrice !== null && maxPrice <= 0) {
+          maxPrice = null;
+        }
+        if (minPrice !== null && maxPrice !== null && maxPrice < minPrice) {
+          // swap to keep invariants consistent when inputs disagree
+          const tmp = minPrice;
+          minPrice = maxPrice;
+          maxPrice = tmp;
+        }
+
         const normalized = {
           propertyType: (filters.propertyType || '').toLowerCase(),
           location: (filters.location || '').toLowerCase(),
-          maxPrice: toNumber(filters.maxPrice),
+          minPrice,
+          maxPrice,
           bedrooms: Array.isArray(filters.bedrooms) ? filters.bedrooms : [],
+          sourceProvider: (filters.sourceProvider || 'mixed').toLowerCase(),
         };
         
         normalized.hasActiveFilters = Boolean(
           normalized.propertyType ||
             normalized.location ||
+            normalized.minPrice !== null ||
             normalized.maxPrice !== null ||
-            normalized.bedrooms.length > 0
+            normalized.bedrooms.length > 0 ||
+            normalized.sourceProvider !== 'mixed'
         );
         return normalized;
       };
@@ -2277,6 +2631,20 @@
         return Number.isFinite(value) ? value : null;
       };
 
+      const resolveListingPrice = (listing = {}) => {
+        const numeric = listing.priceNumeric;
+        if (Number.isFinite(numeric)) {
+          return numeric;
+        }
+        if (typeof numeric === 'string' && numeric.trim()) {
+          const parsed = Number(numeric);
+          if (Number.isFinite(parsed)) {
+            return parsed;
+          }
+        }
+        return parsePriceToNumber(listing.price);
+      };
+
       const matchesPropertyType = (listing, propertyType) => {
         if (!propertyType) return true;
         const keywords = PROPERTY_TYPE_KEYWORDS[propertyType];
@@ -2290,7 +2658,8 @@
         return (listingLocation || '').toLowerCase().includes(locationFilter);
       };
 
-      const matchesPriceRange = (priceNumber, maxPrice) => {
+      const matchesPriceRange = (priceNumber, minPrice, maxPrice) => {
+        if (minPrice !== null && (priceNumber === null || priceNumber < minPrice)) return false;
         if (maxPrice !== null && (priceNumber === null || priceNumber > maxPrice)) return false;
         return true;
       };
@@ -2313,26 +2682,40 @@
         });
       };
 
+      const resolveListingSourceKey = (listing = {}) => {
+        return String(
+          listing.source ||
+            listing.sourceLabel ||
+            (listing.raw && (listing.raw.source || listing.raw.provider)) ||
+            ''
+        )
+          .toLowerCase()
+          .trim();
+      };
+
+      const matchesSourceProvider = (listing, sourceProvider) => {
+        if (!sourceProvider || sourceProvider === 'mixed') return true;
+        const sourceKey = resolveListingSourceKey(listing);
+        if (!sourceKey) {
+          return sourceProvider !== 'mercadolibre';
+        }
+        if (sourceProvider === 'yapo') return sourceKey.includes('yapo');
+        if (sourceProvider === 'mercadolibre') return sourceKey.includes('mercado');
+        return true;
+      };
+
       const applyClientFilters = (listings = [], filters = {}) => {
         const normalized = normalizeClientFilters(filters);
         const filtered = listings.filter((listing) => {
-          const priceNumber = parsePriceToNumber(listing.price);
+          const priceNumber = resolveListingPrice(listing);
           const typeMatch = matchesPropertyType(listing, normalized.propertyType);
           const locationMatch = matchesLocation(listing.location, normalized.location);
-          const priceMatch = matchesPriceRange(priceNumber, normalized.maxPrice);
+          const priceMatch = matchesPriceRange(priceNumber, normalized.minPrice, normalized.maxPrice);
           const bedroomMatch = matchesBedrooms(listing, normalized.bedrooms);
-          return typeMatch && locationMatch && priceMatch && bedroomMatch;
+          const sourceMatch = matchesSourceProvider(listing, normalized.sourceProvider);
+          return typeMatch && locationMatch && priceMatch && bedroomMatch && sourceMatch;
         });
         return { filtered, normalized };
-      };
-
-      const renderWarnings = (warnings = []) => {
-        warningsEl.innerHTML = '';
-        warnings.forEach((warning) => {
-          const li = document.createElement('li');
-          li.textContent = warning;
-          warningsEl.appendChild(li);
-        });
       };
 
       const renderListings = (listings) => {
@@ -2375,6 +2758,14 @@
             meta.className = 'meta';
             meta.textContent = [item.location, item.seller].filter(Boolean).join(' · ');
             body.appendChild(meta);
+          }
+
+          const sourceInfo = resolveListingSource(item);
+          if (sourceInfo && sourceInfo.label) {
+            const sourceBadge = document.createElement('span');
+            sourceBadge.className = `source-badge card-source-badge source-badge--${sourceInfo.key}`;
+            sourceBadge.textContent = sourceInfo.label;
+            body.appendChild(sourceBadge);
           }
 
           if (typeof item.sourcePage === 'number') {
@@ -2423,9 +2814,13 @@
       const fetchListings = async (serverParams = {}, clientFilters = {}) => {
         const url = new URL(API_BASE);
         Object.entries(serverParams).forEach(([key, value]) => url.searchParams.set(key, value));
+        const shouldShowLoadAllLoading = serverParams.pages === 'all' || paginationState.mode === 'all';
+        if (shouldShowLoadAllLoading) {
+          setLoadAllLoadingState(true);
+        }
 
-        statusEl.textContent = 'Actualizando resultados...';
-        statusEl.style.color = '#38bdf8';
+        statusEl.textContent = 'Buscando propiedades...';
+        statusEl.style.removeProperty('color');
 
         try {
           const response = await fetch(url);
@@ -2437,32 +2832,84 @@
           const { filtered, normalized } = applyClientFilters(payload.listings || [], clientFilters);
           const total = meta.total ?? payload.listings?.length ?? 0;
           const filteredCount = filtered.length;
-          const pagesFetchedCount = Array.isArray(meta.pagesFetched) ? meta.pagesFetched.length : 1;
-          const filteredPages = getPagesWithResults(filtered);
-          const paginationDescriptor = (() => {
-            if (meta.fetchMode === 'all') {
-              return ` abarcando ${pagesFetchedCount} páginas${meta.totalPages ? ` (total ${meta.totalPages})` : ''}`;
+          const pagesFetchedCount = (() => {
+            if (Array.isArray(meta.pagesFetched) && meta.pagesFetched.length) {
+              return meta.pagesFetched.length;
             }
-            if (meta.totalPages) {
-              const current = meta.page || payload.pagination?.currentPage || paginationState.currentPage;
-              return ` (página ${current} de ${meta.totalPages})`;
+            if (Array.isArray(payload.pagination?.fetchedPages) && payload.pagination.fetchedPages.length) {
+              return payload.pagination.fetchedPages.length;
             }
-            return '';
+            return 1;
           })();
-          const baseMessage = `Recibidos ${total} avisos${paginationDescriptor}`;
-          statusEl.textContent = normalized.hasActiveFilters
-            ? `${baseMessage} (mostrando ${filteredCount} tras los filtros locales).`
-            : `${baseMessage} (mostrando ${filteredCount}).`;
-          statusEl.style.color = '#22c55e';
-          renderWarnings(payload.warnings || []);
+          const filteredPages = getPagesWithResults(filtered);
+          const pagesConsulted = Array.isArray(meta.pagesFetched) && meta.pagesFetched.length
+            ? meta.pagesFetched
+            : Array.isArray(payload.pagination?.fetchedPages) && payload.pagination.fetchedPages.length
+              ? payload.pagination.fetchedPages
+              : null;
+          const resolvedTotalPages = meta.totalPages || payload.pagination?.totalPages;
+          const currentPageNumber = meta.page || payload.pagination?.currentPage || paginationState.currentPage;
+          const fetchMode = meta.fetchMode || (pagesFetchedCount > 1 ? 'batch' : 'single');
+
+          const sourcesSummary = (() => {
+            const sourceMeta = payload.meta?.externalSources;
+            if (!sourceMeta) return '';
+            const entries = Object.entries(sourceMeta)
+              .map(([key, info = {}]) => {
+                const label = SOURCE_DEFAULT_LABELS[key] || info.label || key;
+                const returned = info.returned ?? info.total ?? 0;
+                if (!returned) return null;
+                return `${label}: ${returned}`;
+              })
+              .filter(Boolean);
+            return entries.length ? `Fuentes activas · ${entries.join(' + ')}.` : '';
+          })();
+
+          const buildStatusMessage = () => {
+            if (!filteredCount) {
+              return normalized.hasActiveFilters
+                ? 'No hay coincidencias para estos filtros todavía.'
+                : 'Aún no hay publicaciones disponibles para esta búsqueda.';
+            }
+            const noun = filteredCount === 1 ? 'propiedad' : 'propiedades';
+            const filterSuffix = normalized.hasActiveFilters ? ' tras tus filtros' : '';
+            if (fetchMode === 'all') {
+              if (pagesConsulted && pagesConsulted.length) {
+                const suffix = resolvedTotalPages ? ` de ${resolvedTotalPages}` : '';
+                return `${filteredCount} ${noun}${filterSuffix}. Revisamos ${pagesConsulted.length} página${pagesConsulted.length === 1 ? '' : 's'}${suffix}.`;
+              }
+              return `${filteredCount} ${noun}${filterSuffix}. Revisando varias páginas.`;
+            }
+            if (resolvedTotalPages) {
+              const current = currentPageNumber || 1;
+              return `${filteredCount} ${noun}${filterSuffix}. Página ${current} de ${resolvedTotalPages}.`;
+            }
+            return `${filteredCount} ${noun}${filterSuffix}.`;
+          };
+
+          const statusPieces = [buildStatusMessage(), sourcesSummary].filter(Boolean);
+          statusEl.textContent = statusPieces.join(' ');
+          statusEl.style.removeProperty('color');
           renderListings(filtered);
-          renderPagination(payload.pagination || {}, meta, filteredPages);
+          renderPagination(payload.pagination || {}, meta, filteredPages, {
+            filteredCount,
+            totalCount: total,
+            hasActiveFilters: normalized.hasActiveFilters,
+          });
         } catch (error) {
           console.error(error);
           statusEl.textContent = `Error consultando el backend: ${error.message}`;
           statusEl.style.color = '#f87171';
           renderListings([]);
-          renderPagination(null, {}, []);
+          renderPagination(null, {}, [], {
+            filteredCount: 0,
+            totalCount: 0,
+            hasActiveFilters: false,
+          });
+        } finally {
+          if (shouldShowLoadAllLoading) {
+            setLoadAllLoadingState(false);
+          }
         }
       };
 
@@ -2472,10 +2919,20 @@
         }
         const params = getCombinedFilters();
         const { server, client } = separateFilters(params);
+        if (client.minPrice !== undefined) {
+          server.minPrice = client.minPrice;
+        }
+        if (client.maxPrice !== undefined) {
+          server.maxPrice = client.maxPrice;
+        }
         server.page = paginationState.currentPage;
         if (paginationState.mode === 'all') {
           server.pages = 'all';
         }
+        const sourceProvider = (client.sourceProvider || 'mixed').toLowerCase();
+        server.sourceProvider = sourceProvider;
+        server.includeMercadoLibre = sourceProvider === 'yapo' ? 'false' : 'true';
+        server.mercadoLibreLimit = 8;
         fetchListings(server, client);
       };
 
@@ -2597,6 +3054,17 @@
           metaParts.push(`Página ${listing.sourcePage}`);
         }
         if (propertyModalMeta) propertyModalMeta.textContent = metaParts.join(' · ');
+        if (propertyModalSource) {
+          const sourceInfo = resolveListingSource(listing);
+          if (sourceInfo && sourceInfo.label) {
+            propertyModalSource.textContent = sourceInfo.label;
+            propertyModalSource.className = `property-modal__source source-badge source-badge--${sourceInfo.key}`;
+            propertyModalSource.style.display = 'inline-flex';
+          } else {
+            propertyModalSource.textContent = '';
+            propertyModalSource.style.display = 'none';
+          }
+        }
 
         if (propertyModalDetails) {
           propertyModalDetails.innerHTML = '';
@@ -2807,6 +3275,19 @@
         historyToggleBtn.addEventListener('click', () => {
           const isOpen = historyExtension?.classList.contains('history-extension--open');
           setHistoryDrawerOpen(!isOpen);
+        });
+      }
+
+      if (historyListEl) {
+        historyListEl.addEventListener('click', (event) => {
+          const deleteBtn = event.target.closest('[data-history-remove]');
+          if (!deleteBtn) return;
+          event.preventDefault();
+          const entryId = deleteBtn.getAttribute('data-history-remove');
+          const removed = removeHistoryEntry(entryId);
+          if (removed) {
+            showToast('Propiedad eliminada del historial.', 'info');
+          }
         });
       }
 
@@ -3058,17 +3539,118 @@
       // Sidebar Slider Logic
       const sidebarSlider = document.getElementById('sidebar-price-slider');
       const sidebarPriceDisplay = document.getElementById('sidebar-price-display');
+      const sidebarPriceInput = document.getElementById('sidebar-price-input');
+      const sidebarMinSlider = document.getElementById('sidebar-min-price-slider');
+      const sidebarMinPriceDisplay = document.getElementById('sidebar-min-price-display');
+      const sidebarMinPriceInput = document.getElementById('sidebar-min-price-input');
 
       const formatPrice = (val) => {
         return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(val);
       };
 
-      if (sidebarSlider && sidebarPriceDisplay) {
-        sidebarSlider.addEventListener('input', (e) => {
-          const val = parseInt(e.target.value);
-          sidebarPriceDisplay.textContent = formatPrice(val);
-        });
-      }
+      let minPriceControl;
+      let maxPriceControl;
+
+      const enforceBounds = (source = 'max') => {
+        if (!minPriceControl || !maxPriceControl) return;
+        const minValue = minPriceControl.getValue();
+        const maxValue = maxPriceControl.getValue();
+        if (!Number.isFinite(minValue) || !Number.isFinite(maxValue)) return;
+        if (minValue > maxValue) {
+          if (source === 'min') {
+            minPriceControl.setValue(maxValue);
+          } else {
+            maxPriceControl.setValue(minValue);
+          }
+        }
+      };
+
+      const buildPriceControl = ({ slider, display, input, type }) => {
+        if (!slider || !display) return null;
+        const sliderMin = Number(slider.min);
+        const sliderMax = Number(slider.max);
+        const sliderStep = Number(slider.step) || 1;
+        const clampPriceValue = (value) => {
+          if (!Number.isFinite(value)) return null;
+          let bounded = value;
+          if (Number.isFinite(sliderMin)) bounded = Math.max(bounded, sliderMin);
+          if (Number.isFinite(sliderMax)) bounded = Math.min(bounded, sliderMax);
+          return bounded;
+        };
+        const normalizePriceValue = (value) => {
+          const clamped = clampPriceValue(value);
+          if (clamped === null) return null;
+          if (!Number.isFinite(sliderStep) || sliderStep <= 0 || !Number.isFinite(sliderMin)) {
+            return clamped;
+          }
+          const stepped = Math.round((clamped - sliderMin) / sliderStep) * sliderStep + sliderMin;
+          return clampPriceValue(stepped);
+        };
+
+        const updatePriceDisplay = (value) => {
+          const numericValue = Number(value);
+          if (!Number.isFinite(numericValue)) return;
+          slider.value = String(numericValue);
+          display.textContent = formatPrice(numericValue);
+          if (input) {
+            input.value = String(numericValue);
+          }
+        };
+
+        const handleSliderInput = () => {
+          const value = Number(slider.value);
+          updatePriceDisplay(value);
+          enforceBounds(type);
+        };
+
+        slider.addEventListener('input', handleSliderInput);
+
+        if (input) {
+          const syncFromInput = () => {
+            if (input.value === '') return;
+            const numericValue = normalizePriceValue(Number(input.value));
+            if (numericValue === null) return;
+            updatePriceDisplay(numericValue);
+            enforceBounds(type);
+          };
+          input.addEventListener('input', syncFromInput);
+          input.addEventListener('change', syncFromInput);
+          input.addEventListener('blur', () => {
+            if (input.value === '') {
+              input.value = slider.value;
+            }
+            syncFromInput();
+          });
+        }
+
+        updatePriceDisplay(Number(slider.value));
+
+        return {
+          type,
+          getValue: () => Number(slider.value),
+          setValue: (value) => {
+            const normalized = normalizePriceValue(value);
+            if (normalized === null) return;
+            updatePriceDisplay(normalized);
+          },
+        };
+      };
+
+      minPriceControl = buildPriceControl({
+        slider: sidebarMinSlider,
+        display: sidebarMinPriceDisplay,
+        input: sidebarMinPriceInput,
+        type: 'min',
+      });
+
+      maxPriceControl = buildPriceControl({
+        slider: sidebarSlider,
+        display: sidebarPriceDisplay,
+        input: sidebarPriceInput,
+        type: 'max',
+      });
+
+      enforceBounds();
 
       // Carga inicial
       handleSearch({ resetPage: true });

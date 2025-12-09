@@ -5,7 +5,8 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "email:test": "node scripts/testEmail.js"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +20,8 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.15.3",
     "nodemailer": "^6.9.16",
-    "puppeteer": "^24.30.0"
+    "puppeteer": "^24.30.0",
+    "undici": "^6.7.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

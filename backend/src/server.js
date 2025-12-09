@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const app = require('./app'); // si tu app exporta el express app desde app.js
 const { initPuppeteer } = require('./services/puppeteerService');
+const { verifyEmailTransport, hasEmailCredentials } = require('./services/emailService');
 
 async function start() {
   try {
@@ -19,6 +20,22 @@ async function start() {
     const server = app.listen(port, () => {
       console.log(`Server running on port ${port}`);
     });
+
+    if (hasEmailCredentials()) {
+      verifyEmailTransport()
+        .then(() => {
+          console.log('Email transport ready.');
+        })
+        .catch((error) => {
+          const helpMessage = error?.help || error?.message || 'No se pudo verificar el transporte de correo.';
+          console.warn(helpMessage);
+          if (error?.cause?.message) {
+            console.warn('SMTP error:', error.cause.message);
+          }
+        });
+    } else {
+      console.warn('EMAIL_USER y EMAIL_PASS no están definidos; se omite el envío de correos.');
+    }
 
     // manejar errores no capturados para debug durante desarrollo
     process.on('unhandledRejection', (reason, p) => {

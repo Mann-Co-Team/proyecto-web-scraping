@@ -1,29 +1,15 @@
 #!/usr/bin/env node
 /**
- * Compatibility shim that forwards to src/services/mercadoLibreRentals.js.
- * Remove this file once every reference points to the service layer.
+ * Mercado Libre API helper focused on rental listings.
+ *
+ * Run with Node.js 18+ (native fetch support). Example:
+ *   cd backend && node src/services/mercadoLibreRentals.js
+ *
+ * The script keeps the logic isolated so you can import the exported functions
+ * (searchRentals, getItemDetails, getSellerProfile) from other services.
  */
-const servicePath = '../src/services/mercadoLibreRentals';
-const service = require(servicePath);
 
-module.exports = service;
-
-if (require.main === module) {
-  console.warn(
-    'scripts/mercadoLibreRentals.js ahora delega a src/services/mercadoLibreRentals.js. Actualiza tus referencias.'
-  );
-  if (typeof service.runDemo === 'function') {
-    service
-      .runDemo()
-      .catch((error) => {
-        console.error('Error ejecutando el demo de Mercado Libre:', error);
-        process.exitCode = 1;
-      });
-  }
-}
-
-// Legacy implementation kept for reference while the integration migrates fully.
-if (false) {
+const { fetch: undiciFetch } = require('undici');
 
 const BASE_URL = 'https://api.mercadolibre.com';
 const DEFAULT_SITE_ID = process.env.ML_SITE_ID || 'MLC'; // MLC: Chile
@@ -36,10 +22,15 @@ const MAX_LIMIT = 50; // API enforces limit <= 50 and offset+limit <= 1050
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const fetchJson = async (input, init = {}) => {
-  const response = await fetch(input, {
+  const fetchImpl = typeof fetch === 'function' ? fetch : undiciFetch;
+  const response = await fetchImpl(input, {
     headers: {
       Accept: 'application/json',
-      'User-Agent': 'proyecto-web-scraping/mercado-libre-helper',
+      'Accept-Language': 'es-CL,es;q=0.9',
+      Referer: 'https://www.mercadolibre.cl/',
+      Connection: 'keep-alive',
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36',
       ...(init.headers || {}),
     },
     ...init,
@@ -101,6 +92,8 @@ const summarizeListing = (listing) => ({
   price: listing.price,
   currency: listing.currency_id,
   permalink: listing.permalink,
+  thumbnail: listing.thumbnail || null,
+  secure_thumbnail: listing.secure_thumbnail || null,
   sellerId: listing.seller?.id || null,
   location: listing.address || listing.location || null,
   operation: extractAttribute(listing, 'OPERATION'),
@@ -231,6 +224,7 @@ module.exports = {
   getItemDetails,
   getItemDescription,
   getSellerProfile,
+  runDemo,
   constants: {
     BASE_URL,
     DEFAULT_SITE_ID,
@@ -240,5 +234,3 @@ module.exports = {
     PROPERTY_TYPE_CASA,
   },
 };
-
-}
